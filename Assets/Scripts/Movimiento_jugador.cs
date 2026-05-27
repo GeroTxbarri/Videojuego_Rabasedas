@@ -2,13 +2,12 @@ using UnityEngine;
 
 public class Movimiento_jugador : MonoBehaviour
 {
-    private float velocidad = 5f;
+    private float fuerzaMovimiento = 20f;
+    private float velocidadMaxima = 5f;
     private float fuerzaSalto = 5f;
-    private float fuerzaMovimiento = 10f; // Qué tan rápido responde el jugador
-    private float velocidadMaxima = 8f;   // Límite de velocidad en suelo normal
 
     private Rigidbody rb;
-    private bool tocaPiso;
+    public bool tocaPiso;
 
     void Start()
     {
@@ -23,11 +22,8 @@ public class Movimiento_jugador : MonoBehaviour
 
         Vector3 direccion = (transform.right * movHorizontal + transform.forward * movVertical).normalized;
 
-        // ✅ Aplicamos fuerza en vez de asignar velocidad directamente
-        // Así la fricción del Physics Material puede actuar
         rb.AddForce(direccion * fuerzaMovimiento, ForceMode.Force);
 
-        // Limitamos la velocidad horizontal para que no acelere infinito
         Vector3 velHorizontal = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         if (velHorizontal.magnitude > velocidadMaxima)
         {
@@ -47,9 +43,18 @@ public class Movimiento_jugador : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        foreach (ContactPoint contacto in collision.contacts)
         {
-            tocaPiso = true;
+            if (contacto.normal.y > 0.5f)
+            {
+                tocaPiso = true;
+                break;
+            }
         }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        tocaPiso = false;
     }
 }

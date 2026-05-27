@@ -652,7 +652,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5661, y: 1, z: 1.4412}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -764,7 +764,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3.48, y: 0.83, z: -0.49447}
-  m_LocalScale: {x: 2.3647, y: 0.15532987, z: 2.3647}
+  m_LocalScale: {x: 3.4947903, y: 0.15532987, z: 5.7116966}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1007,6 +1007,7 @@ GameObject:
   - component: {fileID: 2129083060}
   - component: {fileID: 2129083059}
   - component: {fileID: 2129083064}
+  - component: {fileID: 2129083065}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -1148,6 +1149,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdcdff25757b2624392b14ce183137c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Movimiento_jugador
+  tocaPiso: 0
+--- !u!114 &2129083065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2129083058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bdddbbde6c48614385f3a9ac1332d5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Habilidad_jugador
+  habilidad: 1
+  factorCaidaLenta: 0.06
+  teclaHabilidad: 101
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
