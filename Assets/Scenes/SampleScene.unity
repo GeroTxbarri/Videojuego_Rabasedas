@@ -205,13 +205,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.11139661, y: -0.140648, z: 0.054209054, w: 0.98227817}
-  m_LocalPosition: {x: 1.09, y: 4.93, z: -11.77}
-  m_LocalScale: {x: 0.6318363, y: 1, z: 1}
+  m_LocalRotation: {x: 0.016302822, y: 0.028554926, z: 0.09507398, w: 0.99492705}
+  m_LocalPosition: {x: -0.00000023841858, y: 0.99999976, z: -4}
+  m_LocalScale: {x: 0.63183635, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 13.538, y: -15.771, z: 4.434}
+  m_Father: {fileID: 1631248214}
+  m_LocalEulerAnglesHint: {x: 1.548, y: 3.436, z: 10.964}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1068,6 +1068,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1631248213
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1631248214}
+  - component: {fileID: 1631248215}
+  m_Layer: 0
+  m_Name: pivote
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1631248214
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631248213}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 330585546}
+  m_Father: {fileID: 2129083063}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1631248215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631248213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07e7a4196ea879349873442340f82803, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Camara_Jugador
+  sensibilidad: 2
+  cuerpoJugador: {fileID: 2129083063}
 --- !u!1 &1733357608
 GameObject:
   m_ObjectHideFlags: 0
@@ -1435,7 +1482,8 @@ Transform:
   m_LocalPosition: {x: 2.15, y: 2.28, z: -2.75}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1631248214}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2129083065
@@ -1505,7 +1553,6 @@ SceneRoots:
   - {fileID: 894631984}
   - {fileID: 1877072167}
   - {fileID: 2129083063}
-  - {fileID: 330585546}
   - {fileID: 1397844451}
   - {fileID: 463126228}
   - {fileID: 784672577}
