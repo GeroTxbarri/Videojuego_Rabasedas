@@ -5,44 +5,36 @@ public class Movimiento_jugador : MonoBehaviour
 {
     private float fuerzaMovimiento = 20f;
     private float velocidadMaxima = 5f;
-    private float fuerzaSalto = 5f;
 
     [Header("Salto Cargado")]
     [Tooltip("Fuerza máxima al cargar el salto al 100%")]
     public float fuerzaSaltoMaxima = 15f;
-    [Tooltip("Tiempo en segundos para llegar al 100% de carga")]
-    public float tiempoCargaMaxima = 2f;
-    [Tooltip("Tiempo mínimo presionando espacio para activar el modo carga (seg)")]
-    public float tiempoActivacionCarga = 0.3f;
+    [Tooltip("Velocidad a la que crece la barra de carga (unidades/seg, 1 = llena en 1 seg)")]
+    public float velocidadCarga = 0.5f;
+
+    [Header("Detección de Piso")]
+    [Tooltip("Radio de la esfera de detección de suelo (ajustar según el tamaño del jugador)")]
+    public float radioDeteccion = 0.3f;
+    [Tooltip("Layer del suelo (dejar en 'Everything' si no hay layers específicos)")]
+    public LayerMask capasPiso = ~0;
 
     private Rigidbody rb;
-    public bool tocaPiso;
+    public bool tocaPiso; // solo lectura en Inspector, calculado por raycast
     private bool paralizado = false;
 
-    // --- Lógica de carga ---
-    private bool espacioPresionado = false;
+    // --- Lógica de carga (click izquierdo) ---
+    private bool clickPresionado = false;
     private float tiempoPresionado = 0f;
     private bool modoCargar = false;
     private float cargaActual = 0f; // 0 a 1
 
-    // --- UI barra de carga ---
-    private Rect rectBarra;
-    private Rect rectFondo;
+    // --- Constantes de activación ---
+    private const float tiempoActivacionCarga = 0.3f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-
-        // Posición de la barra: abajo a la izquierda, un poco más arriba del borde
-        float anchoFondo = 220f;
-        float altoFondo = 30f;
-        float margenIzq = 30f;
-        float margenAbajo = 100f;
-        float x = margenIzq;
-        float y = Screen.height - margenAbajo - altoFondo;
-        rectFondo = new Rect(x, y, anchoFondo, altoFondo);
-        rectBarra = new Rect(x + 4, y + 4, 0, altoFondo - 8); // ancho se calcula dinámico
     }
 
     void FixedUpdate()
@@ -50,7 +42,7 @@ public class Movimiento_jugador : MonoBehaviour
         if (paralizado) return;
 
         float movHorizontal = Input.GetAxisRaw("Horizontal");
-        float movVertical = Input.GetAxisRaw("Vertical");
+        float movVertical   = Input.GetAxisRaw("Vertical");
 
         Vector3 direccion = (transform.right * movHorizontal + transform.forward * movVertical).normalized;
         rb.AddForce(direccion * fuerzaMovimiento, ForceMode.Force);
@@ -67,101 +59,95 @@ public class Movimiento_jugador : MonoBehaviour
     {
         if (paralizado) return;
 
-        // --- Manejo de espacio presionado ---
-        if (Input.GetButtonDown("Jump"))
+        // ── Detección de piso con esfera (confiable contra múltiples colisionadores) ──
+        // Lanza una pequeña esfera desde la base del jugador hacia abajo
+        Vector3 origen = transform.position + Vector3.down * (GetComponent<Collider>().bounds.extents.y - 0.05f);
+        tocaPiso = Physics.CheckSphere(origen, radioDeteccion, capasPiso, QueryTriggerInteraction.Ignore);
+
+        // ── Salto instantáneo con Espacio ──────────────────────────────────
+        if (Input.GetButtonDown("Jump") && tocaPiso)
         {
-            if (tocaPiso)
-            {
-                espacioPresionado = true;
-                tiempoPresionado = 0f;
-                modoCargar = false;
-                cargaActual = 0f;
-            }
+            rb.AddForce(Vector3.up * fuerzaSaltoMaxima * 0.5f, ForceMode.Impulse);
         }
 
-        if (Input.GetButton("Jump") && espacioPresionado && tocaPiso)
+        // ── Carga con click izquierdo ──────────────────────────────────────
+        if (Input.GetMouseButtonDown(0) && tocaPiso)
+        {
+            clickPresionado = true;
+            tiempoPresionado = 0f;
+            modoCargar = false;
+            cargaActual = 0f;
+        }
+
+        if (Input.GetMouseButton(0) && clickPresionado && tocaPiso)
         {
             tiempoPresionado += Time.deltaTime;
 
-            // Activar modo carga luego de tiempoActivacionCarga segundos
             if (tiempoPresionado >= tiempoActivacionCarga)
             {
                 modoCargar = true;
-                // Carga normalizada entre 0 y 1
-                float tiempoCargar = tiempoPresionado - tiempoActivacionCarga;
-                cargaActual = Mathf.Clamp01(tiempoCargar / tiempoCargaMaxima);
+                cargaActual = Mathf.Clamp01(cargaActual + velocidadCarga * Time.deltaTime);
             }
         }
 
-        if (Input.GetButtonUp("Jump"))
+        if (Input.GetMouseButtonUp(0))
         {
-            if (espacioPresionado && tocaPiso)
+            if (clickPresionado && tocaPiso)
             {
-                if (!modoCargar)
+                if (modoCargar)
                 {
-                    // Toque rápido → salto normal
-                    rb.AddForce(Vector3.up * fuerzaSalto, ForceMode.Impulse);
+                    // Salto cargado: la fuerza escala con la carga (0% → mitad, 100% → máximo)
+                    float fuerza = Mathf.Lerp(fuerzaSaltoMaxima * 0.5f, fuerzaSaltoMaxima, cargaActual);
+                    rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
+                    tocaPiso = false;
                 }
                 else
                 {
-                    // Salto cargado: interpola entre fuerzaSalto y fuerzaSaltoMaxima
-                    float fuerza = Mathf.Lerp(fuerzaSalto, fuerzaSaltoMaxima, cargaActual);
-                    rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
+                    // Click corto → no hay acción de salto (el usuario no llegó al umbral)
                 }
-
-                tocaPiso = false;
             }
 
-            // Reset
-            espacioPresionado = false;
-            modoCargar = false;
-            cargaActual = 0f;
+            clickPresionado = false;
+            modoCargar      = false;
+            cargaActual     = 0f;
             tiempoPresionado = 0f;
         }
     }
 
     void OnGUI()
     {
-        // Solo mostrar barra cuando está cargando
         if (!modoCargar || !tocaPiso) return;
 
-        float anchoMaxBarra = rectFondo.width - 8;
-        float anchoBarra = anchoMaxBarra * cargaActual;
+        // ── Dimensiones ────────────────────────────────────────────────────
+        // Ancho original era 220 → +20% = 264
+        float anchoFondo = 264f;
+        // Alto original era 30 → mitad = 15
+        float altoFondo  = 15f;
+        // Borde: original 4px → mitad = 2px
+        float borde      = 2f;
 
-        // Fondo oscuro con borde
-        GUI.color = new Color(0.1f, 0.1f, 0.1f, 0.85f);
+        // ── Posición: centro horizontal, 1/5 desde abajo ──────────────────
+        float x = (Screen.width  - anchoFondo) * 0.5f;
+        float y = Screen.height * (1f - 1f / 5f) - altoFondo;
+
+        Rect rectFondo = new Rect(x, y, anchoFondo, altoFondo);
+
+        float anchoMaxBarra = anchoFondo - borde * 2f;
+        float anchoBarra    = anchoMaxBarra * cargaActual;
+
+        // Fondo negro semitransparente
+        GUI.color = new Color(0f, 0f, 0f, 0.85f);
         GUI.DrawTexture(rectFondo, Texture2D.whiteTexture);
 
-        // Barra de carga: color verde → amarillo → rojo según carga
+        // Barra: verde → rojo según carga
         Color colorBarra = Color.Lerp(Color.green, Color.red, cargaActual);
         GUI.color = colorBarra;
-        GUI.DrawTexture(new Rect(rectFondo.x + 4, rectFondo.y + 4, anchoBarra, rectFondo.height - 8), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(x + borde, y + borde, anchoBarra, altoFondo - borde * 2f), Texture2D.whiteTexture);
 
-        // Etiqueta
         GUI.color = Color.white;
-        GUIStyle estilo = new GUIStyle(GUI.skin.label);
-        estilo.fontSize = 11;
-        estilo.alignment = TextAnchor.MiddleCenter;
-        estilo.fontStyle = FontStyle.Bold;
-        GUI.Label(new Rect(rectFondo.x, rectFondo.y - 20, rectFondo.width, 20), "FUERZA SALTO", estilo);
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        foreach (ContactPoint contacto in collision.contacts)
-        {
-            if (contacto.normal.y > 0.5f)
-            {
-                tocaPiso = true;
-                break;
-            }
-        }
-    }
-
-    void OnCollisionExit(Collision collision)
-    {
-        tocaPiso = false;
-    }
+    // tocaPiso se actualiza por CheckSphere en Update() — no se usan más eventos de colisión para esto.
 
     public void Paralizar(float tiempo)
     {
