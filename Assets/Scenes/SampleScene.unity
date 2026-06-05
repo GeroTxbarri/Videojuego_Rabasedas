@@ -397,6 +397,7 @@ GameObject:
   - component: {fileID: 463126225}
   - component: {fileID: 463126229}
   - component: {fileID: 463126230}
+  - component: {fileID: 463126231}
   m_Layer: 0
   m_Name: enemigo
   m_TagString: Untagged
@@ -539,6 +540,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Logica_Respawn
   puntoInicio: {fileID: 784672577}
+--- !u!114 &463126231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 463126224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1916479b59979e4aa0ba22d7092ff8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Habilidad_Paralizante
+  teclaDisparo: 113
+  prefabParalizante: {fileID: 145841576888507476, guid: 5f4860a1bb5a27047b5e6b8a9f221d98, type: 3}
+  fuerzaDisparo: 15
+  tiempoParalisis: 3
 --- !u!1 &784672576
 GameObject:
   m_ObjectHideFlags: 0
@@ -1356,6 +1373,7 @@ GameObject:
   - component: {fileID: 2129083066}
   - component: {fileID: 2129083067}
   - component: {fileID: 2129083068}
+  - component: {fileID: 2129083069}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -1542,6 +1560,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Logica_Respawn
   puntoInicio: {fileID: 784672577}
+--- !u!114 &2129083069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2129083058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1916479b59979e4aa0ba22d7092ff8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Habilidad_Paralizante
+  teclaDisparo: 113
+  prefabParalizante: {fileID: 145841576888507476, guid: 5f4860a1bb5a27047b5e6b8a9f221d98, type: 3}
+  fuerzaDisparo: 15
+  tiempoParalisis: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

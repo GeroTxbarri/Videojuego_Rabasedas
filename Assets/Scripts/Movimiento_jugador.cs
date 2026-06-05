@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Movimiento_jugador : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class Movimiento_jugador : MonoBehaviour
 
     private Rigidbody rb;
     public bool tocaPiso;
+    private bool paralizado = false;
 
     void Start()
     {
@@ -17,6 +19,10 @@ public class Movimiento_jugador : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (paralizado)
+        {
+            return;
+        }
         float movHorizontal = Input.GetAxisRaw("Horizontal");
         float movVertical = Input.GetAxisRaw("Vertical");
 
@@ -34,6 +40,10 @@ public class Movimiento_jugador : MonoBehaviour
 
     void Update()
     {
+        if (paralizado)
+        {
+            return;
+        }
         if (Input.GetButtonDown("Jump") && tocaPiso)
         {
             rb.AddForce(Vector3.up * fuerzaSalto, ForceMode.Impulse);
@@ -56,5 +66,21 @@ public class Movimiento_jugador : MonoBehaviour
     void OnCollisionExit(Collision collision)
     {
         tocaPiso = false;
+    }
+
+    public void Paralizar(float tiempo)
+    {
+        StartCoroutine(RutinaParalisis(tiempo));
+    }
+
+    private IEnumerator RutinaParalisis(float tiempo)
+    {
+        paralizado = true;
+
+        rb.linearVelocity = Vector3.zero;
+
+        yield return new WaitForSeconds(tiempo);
+
+        paralizado = false;
     }
 }
