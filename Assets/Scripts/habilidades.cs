@@ -31,15 +31,21 @@ public class Habilidad_jugador : MonoBehaviour
     public GameObject prefabMisil;
     [Tooltip("Fuerza de lanzamiento del misil")]
     public float fuerzaMisil = 20f;
+    [Tooltip("Cooldown entre disparos de misil (seg)")]
+    public float cooldownMisil = 0.5f;
 
     // ─────────────────────────────────────────────────────────────────────
     [Header("Paralizante")]
-    [Tooltip("Prefab del proyectil paralizante")]
+    [Tooltip("Prefab del proyectil paralizante (si usas proyectil). No requerido para la burbuja")]
     public GameObject prefabParalizante;
     [Tooltip("Fuerza de lanzamiento del paralizante")]
     public float fuerzaParalizante = 15f;
     [Tooltip("Tiempo que el objetivo queda paralizado (seg)")]
     public float tiempoParalisis = 3f;
+    [Tooltip("Cooldown entre disparos paralizantes (seg)")]
+    public float cooldownParalizante = 1f;
+    [Tooltip("Radio de la burbuja de parálisis (si se usa la burbuja)")]
+    public float radioParalizante = 5f;
 
     // ─────────────────────────────────────────────────────────────────────
     private Rigidbody rb;
@@ -47,6 +53,10 @@ public class Habilidad_jugador : MonoBehaviour
     
     // Variable para guardar el estado del input y usarlo en FixedUpdate
     private bool intentandoCaidaLenta = false;
+
+    // Control de cooldowns
+    private float tiempoUltimoDisparoMisil = -999f;
+    private float tiempoUltimoDisparoParalizante = -999f;
 
     void Start()
     {
@@ -57,6 +67,30 @@ public class Habilidad_jugador : MonoBehaviour
         {
             Debug.LogError("Error: Falta el script 'Movimiento_jugador' en este GameObject.");
         }
+
+        // Validaciones de configuración
+        ValidarConfiguracion();
+    }
+
+    private void ValidarConfiguracion()
+    {
+        Debug.Log("=== VALIDACIÓN DE HABILIDADES ===");
+        Debug.Log($"Habilidad seleccionada: {habilidad}");
+        Debug.Log($"Tecla de activación: {teclaHabilidad}");
+
+        if (habilidad == TipoHabilidad.Ninguna)
+        {
+            Debug.LogWarning("⚠️ ADVERTENCIA: La habilidad está configurada como 'Ninguna'. Asigna una en el Inspector.");
+        }
+
+        if (habilidad == TipoHabilidad.Misil && prefabMisil == null)
+        {
+            Debug.LogError("❌ ERROR: Se seleccionó 'Misil' pero no hay prefab asignado. Arrastra el prefab al campo 'Prefab Misil'.");
+        }
+
+        // El paralizante puede usar una burbuja; el prefab del proyectil es opcional.
+
+        Debug.Log("=================================");
     }
 
     void Update()
@@ -69,12 +103,12 @@ public class Habilidad_jugador : MonoBehaviour
                 break;
 
             case TipoHabilidad.Misil:
-                if (Input.GetKeyDown(teclaHabilidad))
+                if (Input.GetKeyDown(teclaHabilidad) && PuedoDispararMisil())
                     DispararMisil();
                 break;
 
             case TipoHabilidad.Paralizante:
-                if (Input.GetKeyDown(teclaHabilidad))
+                if (Input.GetKeyDown(teclaHabilidad) && PuedoDispararParalizante())
                     DispararParalizante();
                 break;
 
@@ -82,6 +116,16 @@ public class Habilidad_jugador : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    private bool PuedoDispararMisil()
+    {
+        return Time.time >= tiempoUltimoDisparoMisil + cooldownMisil;
+    }
+
+    private bool PuedoDispararParalizante()
+    {
+        return Time.time >= tiempoUltimoDisparoParalizante + cooldownParalizante;
     }
 
     void FixedUpdate()
@@ -113,7 +157,9 @@ public class Habilidad_jugador : MonoBehaviour
             return;
         }
 
-        Vector3 dir = ObtenerDireccionDisparo();
+        tiempoUltimoDisparoMisil = Time.time;
+
+        Vector3 dir = transform.forward; // Dirección hacia donde está mirando el jugador
         Vector3 origen = transform.position + dir * 1.5f;
 
         GameObject misil = Instantiate(prefabMisil, origen, Quaternion.identity);
@@ -125,39 +171,66 @@ public class Habilidad_jugador : MonoBehaviour
     // ── Paralizante ───────────────────────────────────────────────────────
     void DispararParalizante()
     {
-        if (prefabParalizante == null)
+        // Generar una burbuja de parálisis alrededor del jugador (no se dispara un proyectil)
+        tiempoUltimoDisparoParalizante = Time.time;
+
+        GameObject burbuja = new GameObject("ParalisisBurbuja");
+        burbuja.transform.position = transform.position;
+        var pb = burbuja.AddComponent<ParalisisBurbuja>();
+        pb.radio = radioParalizante;
+        pb.duracion = 0.3f; // duración de la burbuja según solicitado
+        pb.portador = movimiento;
+
+        // Visual: crear un child sphere semitransparente
+        var visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        visual.transform.SetParent(burbuja.transform, false);
+        visual.transform.localPosition = Vector3.zero;
+        visual.transform.localScale = Vector3.one * (radioParalizante * 2f);
+        Destroy(visual.GetComponent<SphereCollider>());
+        var mr = visual.GetComponent<MeshRenderer>();
+        if (mr != null)
         {
-            Debug.LogError("Error: Prefab Paralizante no asignado en el Inspector.");
-            return;
+            // Intentar usar un shader compatible con URP si existe, si no caer a "Unlit/Color" o "Standard"
+            Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null) shader = Shader.Find("Unlit/Color");
+            if (shader == null) shader = Shader.Find("Standard");
+
+            var mat = new Material(shader ?? Shader.Find("Standard"));
+            // Hacer la esfera mucho más transparente (80% más transparente => alpha reducido)
+            float alpha = 0.05f;
+            Color azul = new Color(0f, 0.6f, 1f, alpha);
+
+            // Propiedad del color depende del shader
+            if (shader != null && shader.name.Contains("Universal"))
+            {
+                mat.SetColor("_BaseColor", azul);
+            }
+            else if (shader != null && shader.name.Contains("Unlit"))
+            {
+                // "Unlit/Color" usa _Color
+                mat.SetColor("_Color", azul);
+            }
+            else
+            {
+                // Standard: configurar modo transparente
+                mat.SetColor("_Color", azul);
+                mat.SetFloat("_Mode", 3f);
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.DisableKeyword("_ALPHATEST_ON");
+                mat.EnableKeyword("_ALPHABLEND_ON");
+                mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            }
+
+            // Hacer doble cara (desactivar culling) para que sea visible desde dentro
+            mat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+            mat.renderQueue = 3000;
+            mr.material = mat;
         }
 
-        Vector3 dir = ObtenerDireccionDisparo();
-        Vector3 origen = transform.position + dir * 1.5f;
-
-        GameObject proy = Instantiate(prefabParalizante, origen, Quaternion.identity);
-
-        Rigidbody rbProy = proy.GetComponent<Rigidbody>();
-        if (rbProy != null)
-        {
-            // Nota: Al igual que arriba, usa rb.velocity si estás en Unity 2022 o inferior.
-            rbProy.linearVelocity = rb.linearVelocity;
-            rbProy.AddForce(dir * fuerzaParalizante, ForceMode.Impulse);
-        }
-
-        Paralizante script = proy.GetComponent<Paralizante>();
-        if (script != null)
-            script.tiempoParalisis = tiempoParalisis;
+        // Dejar que la burbuja haga su trabajo y se destruya al terminar
+        Destroy(burbuja, tiempoParalisis + 0.1f);
     }
 
-    // ── Utilidad compartida ───────────────────────────────────────────────
-    Vector3 ObtenerDireccionDisparo()
-    {
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
-
-        if (h == 0f && v == 0f)
-            return transform.forward;
-
-        return (transform.right * h + transform.forward * v).normalized;
-    }
 }

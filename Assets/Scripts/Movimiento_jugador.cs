@@ -20,9 +20,17 @@ public class Movimiento_jugador : MonoBehaviour
     [Tooltip("Desplazamiento hacia abajo desde el centro del jugador para la esfera de detección")]
     public float offsetSuelo = 1f;
 
+    // (La burbuja ahora la genera `ParalisisBurbuja.cs` desde la habilidad)
+
     private Rigidbody rb;
     public bool tocaPiso; // calculado por CheckSphere cada frame
     private bool paralizado = false;
+    private Color colorOriginal = Color.white;
+    private Renderer meshRenderer;
+    private Renderer[] allRenderers;
+    private Color[][] originalColors;
+    private Color[][] originalEmissionColors;
+    private bool[][] originalEmissionEnabled;
 
     // Propiedad pública para que el script de habilidades sepa si estamos congelados
     public bool IsParalizado => paralizado;
@@ -41,6 +49,45 @@ public class Movimiento_jugador : MonoBehaviour
     {
         rb  = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        
+        // Obtener todos los renderers para permitir cambiar color a jugadores con SkinnedMeshRenderer
+        allRenderers = GetComponentsInChildren<Renderer>(true);
+        if (allRenderers != null && allRenderers.Length > 0)
+        {
+            meshRenderer = allRenderers[0];
+            // Guardar colores originales por renderer/material
+            originalColors = new Color[allRenderers.Length][];
+            originalEmissionColors = new Color[allRenderers.Length][];
+            originalEmissionEnabled = new bool[allRenderers.Length][];
+            for (int i = 0; i < allRenderers.Length; i++)
+            {
+                var r = allRenderers[i];
+                var mats = r.materials; // this makes instances so changes won't affect sharedMaterials
+                originalColors[i] = new Color[mats.Length];
+                originalEmissionColors[i] = new Color[mats.Length];
+                originalEmissionEnabled[i] = new bool[mats.Length];
+                for (int j = 0; j < mats.Length; j++)
+                {
+                    var m = mats[j];
+                    if (m == null) { originalColors[i][j] = Color.white; continue; }
+                    if (m.HasProperty("_BaseColor"))
+                        originalColors[i][j] = m.GetColor("_BaseColor");
+                    else if (m.HasProperty("_Color"))
+                        originalColors[i][j] = m.GetColor("_Color");
+                    else
+                        originalColors[i][j] = m.color;
+                    // store emission state/color
+                    if (m.HasProperty("_EmissionColor"))
+                    {
+                        originalEmissionColors[i][j] = m.GetColor("_EmissionColor");
+                        originalEmissionEnabled[i][j] = m.IsKeywordEnabled("_EMISSION");
+                    }
+                }
+            }
+            // Set a default from first material
+            if (originalColors.Length > 0 && originalColors[0].Length > 0)
+                colorOriginal = originalColors[0][0];
+        }
     }
 
     void FixedUpdate()
@@ -195,11 +242,86 @@ public class Movimiento_jugador : MonoBehaviour
         StartCoroutine(RutinaParalisis(tiempo));
     }
 
+    public void ParalizarConEfecto(float tiempo)
+    {
+        // Evita superponer corrutinas si ya estás paralizado
+        StopAllCoroutines(); 
+        StartCoroutine(RutinaParalisiscConEfecto(tiempo));
+    }
+
     private IEnumerator RutinaParalisis(float tiempo)
     {
         paralizado = true;
-        rb.linearVelocity = Vector3.zero; // Detiene el impacto cinético inmediato
+        // NO resetear la velocidad: conservar la inercia inicial mientras el jugador
+        // queda paralizado (no podrá controlar el movimiento, pero mantiene velocidad).
         yield return new WaitForSeconds(tiempo);
+        paralizado = false;
+    }
+
+    private IEnumerator RutinaParalisiscConEfecto(float tiempo)
+    {
+        paralizado = true;
+
+        // Cambiar a color celeste (para todos los renderers y materiales)
+        // Aplicar tint hacia azul independientemente de la textura
+        Color azul = new Color(0f, 0.6f, 1f, 1f);
+        float tintStrength = 0.8f; // 0..1, cuánto aplicar el azul sobre el color original
+        if (allRenderers != null)
+        {
+            for (int i = 0; i < allRenderers.Length; i++)
+            {
+                var r = allRenderers[i];
+                var mats = r.materials; // instances
+                for (int j = 0; j < mats.Length; j++)
+                {
+                    var m = mats[j];
+                    if (m == null) continue;
+                    Color orig = Color.white;
+                    if (j < originalColors[i].Length) orig = originalColors[i][j];
+                    Color target = Color.Lerp(orig, azul, tintStrength);
+                    if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", target);
+                    if (m.HasProperty("_Color")) m.SetColor("_Color", target);
+                    if (!m.HasProperty("_BaseColor") && !m.HasProperty("_Color")) m.color = target;
+
+                    // Emission tint to make effect visible on textured materials
+                    if (m.HasProperty("_EmissionColor"))
+                    {
+                        m.EnableKeyword("_EMISSION");
+                        m.SetColor("_EmissionColor", target * 0.35f);
+                    }
+                }
+            }
+        }
+
+        yield return new WaitForSeconds(tiempo);
+
+        // Restaurar colores originales y estado de emisión
+        if (allRenderers != null && originalColors != null)
+        {
+            for (int i = 0; i < allRenderers.Length; i++)
+            {
+                var r = allRenderers[i];
+                var mats = r.materials; // instances
+                for (int j = 0; j < mats.Length && j < originalColors[i].Length; j++)
+                {
+                    var m = mats[j];
+                    if (m == null) continue;
+                    Color orig = originalColors[i][j];
+                    if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", orig);
+                    if (m.HasProperty("_Color")) m.SetColor("_Color", orig);
+                    if (!m.HasProperty("_BaseColor") && !m.HasProperty("_Color")) m.color = orig;
+
+                    if (m.HasProperty("_EmissionColor") && originalEmissionColors != null)
+                    {
+                        Color eorig = originalEmissionColors[i][j];
+                        m.SetColor("_EmissionColor", eorig);
+                        if (originalEmissionEnabled[i][j]) m.EnableKeyword("_EMISSION");
+                        else m.DisableKeyword("_EMISSION");
+                    }
+                }
+            }
+        }
+
         paralizado = false;
     }
 }
