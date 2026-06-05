@@ -17,9 +17,10 @@ public class Movimiento_jugador : MonoBehaviour
     public float radioDeteccion = 0.3f;
     [Tooltip("Layer del suelo (dejar en 'Everything' si no hay layers específicos)")]
     public LayerMask capasPiso = ~0;
+    [Tooltip("Desplazamiento hacia abajo desde el centro del jugador para la esfera de detección")]
+    public float offsetSuelo = 1f;
 
     private Rigidbody rb;
-    private Collider col;
     public bool tocaPiso; // calculado por CheckSphere cada frame
     private bool paralizado = false;
 
@@ -36,7 +37,6 @@ public class Movimiento_jugador : MonoBehaviour
     void Start()
     {
         rb  = GetComponent<Rigidbody>();
-        col = GetComponent<Collider>();
         rb.freezeRotation = true;
     }
 
@@ -87,8 +87,17 @@ public class Movimiento_jugador : MonoBehaviour
         if (paralizado) return;
 
         // ── Detección de piso con esfera ──────────────────────────────────
-        Vector3 origen = transform.position + Vector3.down * (col.bounds.extents.y - 0.05f);
-        tocaPiso = Physics.CheckSphere(origen, radioDeteccion, capasPiso, QueryTriggerInteraction.Ignore);
+        Vector3 origen = transform.position + Vector3.down * offsetSuelo;
+        Collider[] colliders = Physics.OverlapSphere(origen, radioDeteccion, capasPiso, QueryTriggerInteraction.Ignore);
+        tocaPiso = false;
+        foreach (Collider c in colliders)
+        {
+            if (c.transform.root != transform.root) // Ignorar colliders del propio jugador
+            {
+                tocaPiso = true;
+                break;
+            }
+        }
 
         // ── Salto instantáneo con Espacio ─────────────────────────────────
         if (Input.GetButtonDown("Jump") && tocaPiso)
