@@ -205,13 +205,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.016302822, y: 0.028554926, z: 0.09507398, w: 0.99492705}
+  m_LocalRotation: {x: 0.13393047, y: -0, z: -0, w: 0.9909907}
   m_LocalPosition: {x: -0.00000023841858, y: 0.99999976, z: -4}
   m_LocalScale: {x: 0.63183635, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1631248214}
-  m_LocalEulerAnglesHint: {x: 1.548, y: 3.436, z: 10.964}
+  m_LocalEulerAnglesHint: {x: 15.394, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -552,10 +552,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1916479b59979e4aa0ba22d7092ff8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Habilidad_Paralizante
-  teclaDisparo: 113
-  prefabParalizante: {fileID: 145841576888507476, guid: 5f4860a1bb5a27047b5e6b8a9f221d98, type: 3}
-  fuerzaDisparo: 15
-  tiempoParalisis: 3
 --- !u!1 &784672576
 GameObject:
   m_ObjectHideFlags: 0
@@ -774,7 +770,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1253661332}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: e692d231047b8e0458e2475a9a851668, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1516,9 +1512,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bdddbbde6c48614385f3a9ac1332d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Habilidad_jugador
-  habilidad: 1
-  factorCaidaLenta: 0.35
+  habilidad: 2
   teclaHabilidad: 101
+  factorCaidaLenta: 0.35
+  prefabMisil: {fileID: 0}
+  fuerzaMisil: 20
+  prefabParalizante: {fileID: 0}
+  fuerzaParalizante: 15
+  tiempoParalisis: 3
 --- !u!114 &2129083066
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1531,6 +1532,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4979bb39035076249adcd79644ad7011, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Movimiento_jugador
+  fuerzaSaltoMaxima: 15
+  velocidadCarga: 0.5
+  radioDeteccion: 0.3
+  capasPiso:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  offsetSuelo: 1
   tocaPiso: 1
 --- !u!114 &2129083067
 MonoBehaviour:
@@ -1544,9 +1552,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebaa461d55c7ee0429d65f98342cf69a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Habilidad_Misil
-  teclaDisparo: 101
-  premisil: {fileID: 7643110280385555853, guid: 09fd7c06021c9b94cbf6ecf1bdcfd08c, type: 3}
-  fuerzaDisparo: 20
 --- !u!114 &2129083068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1572,10 +1577,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1916479b59979e4aa0ba22d7092ff8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Habilidad_Paralizante
-  teclaDisparo: 113
-  prefabParalizante: {fileID: 145841576888507476, guid: 5f4860a1bb5a27047b5e6b8a9f221d98, type: 3}
-  fuerzaDisparo: 15
-  tiempoParalisis: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
