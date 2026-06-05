@@ -24,6 +24,9 @@ public class Movimiento_jugador : MonoBehaviour
     public bool tocaPiso; // calculado por CheckSphere cada frame
     private bool paralizado = false;
 
+    // Propiedad pública para que el script de habilidades sepa si estamos congelados
+    public bool IsParalizado => paralizado;
+
     // --- Lógica de carga (click izquierdo) ---
     private bool clickPresionado = false;
     private float tiempoPresionado = 0f;
@@ -49,18 +52,14 @@ public class Movimiento_jugador : MonoBehaviour
 
         Vector3 direccion = (transform.right * movHorizontal + transform.forward * movVertical).normalized;
 
-        // Durante la carga: si el jugador NO presiona WASD, anular velocidad horizontal
-        // para que el salto sea vertical. Si presiona WASD, se aplica esa dirección.
         if (modoCargar && tocaPiso)
         {
             if (direccion == Vector3.zero)
             {
-                // Sin input → forzar quieto horizontalmente
                 rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
             }
             else
             {
-                // Con WASD → movimiento normal para poder saltar diagonal
                 rb.AddForce(direccion * fuerzaMovimiento, ForceMode.Force);
                 Vector3 velH = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
                 if (velH.magnitude > velocidadMaxima)
@@ -84,19 +83,24 @@ public class Movimiento_jugador : MonoBehaviour
 
     void Update()
     {
-        if (paralizado) return;
-
-        // ── Detección de piso con esfera ──────────────────────────────────
+        // 1. La detección de piso SIEMPRE debe ejecutarse, incluso estando paralizado
         Vector3 origen = transform.position + Vector3.down * offsetSuelo;
         Collider[] colliders = Physics.OverlapSphere(origen, radioDeteccion, capasPiso, QueryTriggerInteraction.Ignore);
         tocaPiso = false;
         foreach (Collider c in colliders)
         {
-            if (c.transform.root != transform.root) // Ignorar colliders del propio jugador
+            if (c.transform.root != transform.root) 
             {
                 tocaPiso = true;
                 break;
             }
+        }
+
+        // 2. Si nos paralizan, reseteamos la carga del salto para evitar bugs ópticos o lógicos
+        if (paralizado)
+        {
+            ResetearCargaSalto();
+            return; // Detiene el procesamiento de inputs de movimiento
         }
 
         // ── Salto instantáneo con Espacio ─────────────────────────────────
@@ -104,14 +108,10 @@ public class Movimiento_jugador : MonoBehaviour
         {
             rb.AddForce(Vector3.up * fuerzaSaltoMaxima * 0.5f, ForceMode.Impulse);
 
-            // Si estaba cargando, cancelar el salto cargado
             if (modoCargar)
             {
+                ResetearCargaSalto();
                 saltoCargadoCancelado = true;
-                clickPresionado  = false;
-                modoCargar       = false;
-                cargaActual      = 0f;
-                tiempoPresionado = 0f;
             }
         }
 
@@ -130,11 +130,7 @@ public class Movimiento_jugador : MonoBehaviour
         {
             if (!tocaPiso)
             {
-                // Salió del piso mientras cargaba → cancelar todo
-                clickPresionado  = false;
-                modoCargar       = false;
-                cargaActual      = 0f;
-                tiempoPresionado = 0f;
+                ResetearCargaSalto();
             }
             else
             {
@@ -156,17 +152,22 @@ public class Movimiento_jugador : MonoBehaviour
                 rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
             }
 
-            clickPresionado      = false;
-            modoCargar           = false;
-            cargaActual          = 0f;
-            tiempoPresionado     = 0f;
-            saltoCargadoCancelado = false;
+            ResetearCargaSalto();
         }
+    }
+
+    private void ResetearCargaSalto()
+    {
+        clickPresionado       = false;
+        modoCargar            = false;
+        cargaActual           = 0f;
+        tiempoPresionado      = 0f;
+        saltoCargadoCancelado = false;
     }
 
     void OnGUI()
     {
-        if (!modoCargar || !tocaPiso) return;
+        if (!modoCargar || !tocaPiso || paralizado) return;
 
         float anchoFondo = 264f;
         float altoFondo  = 15f;
@@ -178,11 +179,9 @@ public class Movimiento_jugador : MonoBehaviour
         Rect rectFondo = new Rect(x, y, anchoFondo, altoFondo);
         float anchoBarra = (anchoFondo - borde * 2f) * cargaActual;
 
-        // Fondo negro
         GUI.color = new Color(0f, 0f, 0f, 0.85f);
         GUI.DrawTexture(rectFondo, Texture2D.whiteTexture);
 
-        // Barra verde → rojo
         GUI.color = Color.Lerp(Color.green, Color.red, cargaActual);
         GUI.DrawTexture(new Rect(x + borde, y + borde, anchoBarra, altoFondo - borde * 2f), Texture2D.whiteTexture);
 
@@ -191,13 +190,15 @@ public class Movimiento_jugador : MonoBehaviour
 
     public void Paralizar(float tiempo)
     {
+        // Evita superponer corrutinas si ya estás paralizado
+        StopAllCoroutines(); 
         StartCoroutine(RutinaParalisis(tiempo));
     }
 
     private IEnumerator RutinaParalisis(float tiempo)
     {
         paralizado = true;
-        rb.linearVelocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero; // Detiene el impacto cinético inmediato
         yield return new WaitForSeconds(tiempo);
         paralizado = false;
     }

@@ -2,10 +2,8 @@ using UnityEngine;
 
 /// <summary>
 /// Componente único de habilidades del jugador.
-/// Elegí la habilidad activa desde el Inspector y configurá sus parámetros.
-/// La mecánica de fuerza de salto (click izquierdo) está en Movimiento_jugador.cs
-/// y no aparece aquí porque la tienen todos los jugadores.
 /// </summary>
+[RequireComponent(typeof(Rigidbody))] // Asegura que siempre haya un Rigidbody
 public class Habilidad_jugador : MonoBehaviour
 {
     public enum TipoHabilidad
@@ -46,11 +44,19 @@ public class Habilidad_jugador : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────
     private Rigidbody rb;
     private Movimiento_jugador movimiento;
+    
+    // Variable para guardar el estado del input y usarlo en FixedUpdate
+    private bool intentandoCaidaLenta = false;
 
     void Start()
     {
-        rb        = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
         movimiento = GetComponent<Movimiento_jugador>();
+
+        if (movimiento == null)
+        {
+            Debug.LogError("Error: Falta el script 'Movimiento_jugador' en este GameObject.");
+        }
     }
 
     void Update()
@@ -58,7 +64,8 @@ public class Habilidad_jugador : MonoBehaviour
         switch (habilidad)
         {
             case TipoHabilidad.CaidaLenta:
-                ManejarCaidaLenta();
+                // Solo registramos el input en Update
+                intentandoCaidaLenta = Input.GetKey(teclaHabilidad);
                 break;
 
             case TipoHabilidad.Misil:
@@ -77,10 +84,21 @@ public class Habilidad_jugador : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        // Las fuerzas físicas continuas deben aplicarse aquí
+        if (habilidad == TipoHabilidad.CaidaLenta)
+        {
+            ManejarCaidaLenta();
+        }
+    }
+
     // ── Caída Lenta ───────────────────────────────────────────────────────
     void ManejarCaidaLenta()
     {
-        if (Input.GetKey(teclaHabilidad) && !movimiento.tocaPiso && rb.linearVelocity.y < 0f)
+        // Nota: rb.linearVelocity es exclusivo de Unity 6+. 
+        // Si usas una versión anterior y te da error, cámbialo a rb.velocity.y
+        if (intentandoCaidaLenta && !movimiento.tocaPiso && rb.linearVelocity.y < 0f)
         {
             rb.AddForce(Vector3.up * Mathf.Abs(Physics.gravity.y) * factorCaidaLenta, ForceMode.Acceleration);
         }
@@ -89,7 +107,11 @@ public class Habilidad_jugador : MonoBehaviour
     // ── Misil ─────────────────────────────────────────────────────────────
     void DispararMisil()
     {
-        if (prefabMisil == null) return;
+        if (prefabMisil == null)
+        {
+            Debug.LogError("Error: Prefab de Misil no asignado en el Inspector.");
+            return;
+        }
 
         Vector3 dir = ObtenerDireccionDisparo();
         Vector3 origen = transform.position + dir * 1.5f;
@@ -103,7 +125,11 @@ public class Habilidad_jugador : MonoBehaviour
     // ── Paralizante ───────────────────────────────────────────────────────
     void DispararParalizante()
     {
-        if (prefabParalizante == null) return;
+        if (prefabParalizante == null)
+        {
+            Debug.LogError("Error: Prefab Paralizante no asignado en el Inspector.");
+            return;
+        }
 
         Vector3 dir = ObtenerDireccionDisparo();
         Vector3 origen = transform.position + dir * 1.5f;
@@ -113,6 +139,7 @@ public class Habilidad_jugador : MonoBehaviour
         Rigidbody rbProy = proy.GetComponent<Rigidbody>();
         if (rbProy != null)
         {
+            // Nota: Al igual que arriba, usa rb.velocity si estás en Unity 2022 o inferior.
             rbProy.linearVelocity = rb.linearVelocity;
             rbProy.AddForce(dir * fuerzaParalizante, ForceMode.Impulse);
         }
