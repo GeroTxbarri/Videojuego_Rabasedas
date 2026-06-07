@@ -168,69 +168,50 @@ public class Habilidad_jugador : MonoBehaviour
             rbMisil.AddForce(dir * fuerzaMisil, ForceMode.Impulse);
     }
 
-    // ── Paralizante ───────────────────────────────────────────────────────
+    // ── Paralizante (VERSIÓN PROYECTIL - RESTAURADA) ──
     void DispararParalizante()
     {
-        // Generar una burbuja de parálisis alrededor del jugador (no se dispara un proyectil)
-        tiempoUltimoDisparoParalizante = Time.time;
-
-        GameObject burbuja = new GameObject("ParalisisBurbuja");
-        burbuja.transform.position = transform.position;
-        var pb = burbuja.AddComponent<ParalisisBurbuja>();
-        pb.radio = radioParalizante;
-        pb.duracion = 0.3f; // duración de la burbuja según solicitado
-        pb.portador = movimiento;
-
-        // Visual: crear un child sphere semitransparente
-        var visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        visual.transform.SetParent(burbuja.transform, false);
-        visual.transform.localPosition = Vector3.zero;
-        visual.transform.localScale = Vector3.one * (radioParalizante * 2f);
-        Destroy(visual.GetComponent<SphereCollider>());
-        var mr = visual.GetComponent<MeshRenderer>();
-        if (mr != null)
+        if (prefabParalizante == null)
         {
-            // Intentar usar un shader compatible con URP si existe, si no caer a "Unlit/Color" o "Standard"
-            Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
-            if (shader == null) shader = Shader.Find("Unlit/Color");
-            if (shader == null) shader = Shader.Find("Standard");
-
-            var mat = new Material(shader ?? Shader.Find("Standard"));
-            // Hacer la esfera mucho más transparente (80% más transparente => alpha reducido)
-            float alpha = 0.05f;
-            Color azul = new Color(0f, 0.6f, 1f, alpha);
-
-            // Propiedad del color depende del shader
-            if (shader != null && shader.name.Contains("Universal"))
-            {
-                mat.SetColor("_BaseColor", azul);
-            }
-            else if (shader != null && shader.name.Contains("Unlit"))
-            {
-                // "Unlit/Color" usa _Color
-                mat.SetColor("_Color", azul);
-            }
-            else
-            {
-                // Standard: configurar modo transparente
-                mat.SetColor("_Color", azul);
-                mat.SetFloat("_Mode", 3f);
-                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                mat.SetInt("_ZWrite", 0);
-                mat.DisableKeyword("_ALPHATEST_ON");
-                mat.EnableKeyword("_ALPHABLEND_ON");
-                mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            }
-
-            // Hacer doble cara (desactivar culling) para que sea visible desde dentro
-            mat.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-            mat.renderQueue = 3000;
-            mr.material = mat;
+            Debug.LogError("Error: Prefab de Paralizante no asignado en el Inspector.");
+            return;
         }
 
-        // Dejar que la burbuja haga su trabajo y se destruya al terminar
-        Destroy(burbuja, tiempoParalisis + 0.1f);
+        tiempoUltimoDisparoParalizante = Time.time;
+
+        // Obtener dirección de disparo (hacia donde mira el jugador)
+        Vector3 direccionDisparo = transform.forward;
+    
+        // También puedes usar input de movimiento como antes:
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+    
+        if (h != 0f || v != 0f)
+        {
+            direccionDisparo = (transform.right * h + transform.forward * v).normalized;
+        }
+    
+        Vector3 puntoAparicion = transform.position + direccionDisparo * 1.5f;
+    
+        GameObject paralizante = Instantiate(prefabParalizante, puntoAparicion, Quaternion.identity);
+    
+        // Configurar el proyectil
+        Paralizante paralizanteScript = paralizante.GetComponent<Paralizante>();
+        if (paralizanteScript != null)
+        {
+            paralizanteScript.tiempoParalisis = tiempoParalisis;
+            paralizanteScript.portador = GetComponent<Movimiento_jugador>();
+            paralizanteScript.radioEfecto = radioParalizante; // Usar el radio para el área de efecto
+        }
+    
+        // Agregar fuerza física
+        Rigidbody rbParalizante = paralizante.GetComponent<Rigidbody>();
+        if (rbParalizante != null)
+        {
+            rbParalizante.AddForce(direccionDisparo * fuerzaParalizante, ForceMode.Impulse);
+        }
+    
+        Debug.Log($"Disparo paralizante lanzado en dirección: {direccionDisparo}");
     }
 
 }
