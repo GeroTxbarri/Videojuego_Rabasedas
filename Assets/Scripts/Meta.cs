@@ -4,6 +4,8 @@ public class Meta : MonoBehaviour
 {
     private bool metaAlcanzada = false;
 
+    public bool MetaAlcanzada => metaAlcanzada;
+
     private void OnCollisionEnter(Collision collision)
     {
         // Detectar si el jugador toca la meta
