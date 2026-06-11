@@ -6,21 +6,22 @@ public class MenuManager : MonoBehaviour
     [Header("Paneles del Menú")]
     public GameObject panelMenuPrincipal;
     public GameObject panelSeleccionNiveles;
-    public GameObject panelSeleccionPersonajes; 
+    public GameObject panelSeleccionPersonajes;
     public GameObject panelConfiguracion;
 
-    // --- FUNCIONES PARA NAVEGAR ENTRE PESTAÑAS ---
+    // --- NAVEGACIÓN ---
+
+    public void AbrirSeleccionPersonajes()
+    {
+        // Ahora este se activa al tocar "JUGAR"
+        panelMenuPrincipal.SetActive(false);
+        panelSeleccionPersonajes.SetActive(true);
+    }
 
     public void AbrirSeleccionNiveles()
     {
         panelMenuPrincipal.SetActive(false); 
         panelSeleccionNiveles.SetActive(true); 
-    }
-
-    public void AbrirSeleccionPersonajes()
-    {
-        panelMenuPrincipal.SetActive(false);
-        panelSeleccionPersonajes.SetActive(true);
     }
 
     public void AbrirConfiguracion()
@@ -37,16 +38,22 @@ public class MenuManager : MonoBehaviour
         panelMenuPrincipal.SetActive(true);
     }
 
-    // --- FUNCIONES DE ACCIÓN ---
+    // --- ACCIONES DE JUEGO ---
 
-    public void JugarNivel(string nombreNivel)
+    // Esta función la van a usar los botones de los personajes
+    public void SeleccionarPersonajeYJugar(string nombrePersonaje)
     {
-        SceneManager.LoadScene(nombreNivel);
+        // Guardamos la elección en la memoria de Unity
+        PlayerPrefs.SetString("PersonajeElegido", nombrePersonaje);
+        PlayerPrefs.Save();
+
+        // Cargamos el nivel de prueba por defecto
+        SceneManager.LoadScene("SampleScene"); 
     }
 
-    public void SalirDelJuego()
+    // Esta función la van a usar los botones del selector de niveles
+    public void CargarNivelEspecifico(string nombreEscena)
     {
-        Debug.Log("Saliendo del juego..."); 
-        Application.Quit(); 
+        SceneManager.LoadScene(nombreEscena);
     }
 }
