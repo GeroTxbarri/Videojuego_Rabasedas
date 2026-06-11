@@ -10,6 +10,9 @@ public class Trampolin : MonoBehaviour
     [Tooltip("Fuerza máxima de rebote (Y)")]
     public float fuerzaMaximaRebote = 25f;
 
+    [Tooltip("Fuerza mínima de rebote (para cuando el jugador se para sobre él)")]
+    public float fuerzaMinimaRebote = 10f;
+
     [Tooltip("Porcentaje de aumento de fuerza en rebotes consecutivos (0.2 = 20%)")]
     public float porcentajeAumento = 0.2f;
 
@@ -69,8 +72,8 @@ public class Trampolin : MonoBehaviour
     /// </summary>
     private bool VieneDesdeLaArriba(Collision collision, Rigidbody rb)
     {
-        // El jugador debe estar cayendo (velocidad Y negativa)
-        if (rb.linearVelocity.y > -0.1f)
+        // El jugador no debe estar subiendo activamente
+        if (rb.linearVelocity.y > 0.1f)
             return false;
 
         float trampolinTop = transform.position.y + espesorTrampolin / 2f;
@@ -98,17 +101,20 @@ public class Trampolin : MonoBehaviour
     /// </summary>
     private float CalcularFuerzaRebote(float fuerzaCaida)
     {
+        // Aplicar una fuerza mínima para que salte incluso si solo se para sobre él
+        float fuerzaBase = Mathf.Max(fuerzaCaida, fuerzaMinimaRebote);
+
         // Si la fuerza de caída es menor que la máxima, aumenta un 20%
-        if (fuerzaCaida < fuerzaMaximaRebote)
+        if (fuerzaBase < fuerzaMaximaRebote)
         {
-            float fuerzaConAumento = fuerzaCaida * (1f + porcentajeAumento);
+            float fuerzaConAumento = fuerzaBase * (1f + porcentajeAumento);
             // No puede superar la fuerza máxima
             return Mathf.Min(fuerzaConAumento, fuerzaMaximaRebote);
         }
         else
         {
             // Si cae con más fuerza que la máxima, disminuye un 10%
-            return fuerzaCaida * (1f - porcentajeDisminucion);
+            return fuerzaBase * (1f - porcentajeDisminucion);
         }
     }
 
