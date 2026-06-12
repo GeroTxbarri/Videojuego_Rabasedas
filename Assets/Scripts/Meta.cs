@@ -11,9 +11,6 @@ public class Meta : MonoBehaviour
     
     [Tooltip("El sistema de partículas del confeti")]
     public ParticleSystem confeti;
-    
-    [Tooltip("Nombre de la escena del menú principal a la que volverá")]
-    public string nombreEscenaMenu = "MenuPrincipal"; // Cambia esto por el nombre real de tu escena de menú
 
     private bool metaAlcanzada = false;
 
@@ -84,8 +81,8 @@ public class Meta : MonoBehaviour
         // Esperamos los segundos indicados
         yield return new WaitForSeconds(tiempoEspera);
         
-        // Cargamos la escena del menú
-        SceneManager.LoadScene(nombreEscenaMenu);
+        // Cargamos la escena del menú principal (Hardcodeado)
+        SceneManager.LoadScene("Menu_Principal");
     }
 
     // Método para resetear la meta si es necesario
