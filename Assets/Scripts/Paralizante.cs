@@ -3,22 +3,35 @@ using UnityEngine;
 public class Paralizante : MonoBehaviour
 {
     public float tiempoParalisis = 3f;
+    public float radioEfecto = 5f;
+    public Movimiento_jugador portador;
 
     private void OnCollisionEnter(Collision collision)
     {
-        Movimiento_jugador jugador = collision.gameObject.GetComponent<Movimiento_jugador>();
+        Collider[] objetosAlcanzados = Physics.OverlapSphere(transform.position, radioEfecto);
+
+        int jugadoresParalizados = 0;
+        foreach (Collider obj in objetosAlcanzados)
+        {
+            Movimiento_jugador jugador = obj.GetComponent<Movimiento_jugador>();
+            
+            if (jugador == null)
+            {
+                jugador = obj.GetComponentInParent<Movimiento_jugador>();
+            }
+
+            if (jugador != null && jugador != portador)
+            {
+                jugador.Paralizar(tiempoParalisis);
+                jugadoresParalizados++;
+            }
+        }
+
+        if (jugadoresParalizados > 0)
+        {
+            Debug.Log($"¡Proyectil paralizante impactó! {jugadoresParalizados} jugador(es) paralizado(s) por {tiempoParalisis} segundos.");
+        }
         
-        if (jugador == null)
-        {
-            jugador = collision.gameObject.GetComponentInParent<Movimiento_jugador>();
-        }
-
-        if (jugador != null)
-        {
-            jugador.Paralizar(tiempoParalisis);
-            Debug.Log("¡Jugador paralizado por " + tiempoParalisis + " segundos!");
-        }
-
         Destroy(gameObject);
     }
 }
