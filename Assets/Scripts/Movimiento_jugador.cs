@@ -1,8 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
+
 public class Movimiento_jugador : MonoBehaviour
 {
+    private Animator anim;
+
     private float fuerzaMovimiento = 20f;
     private float velocidadMaxima = 5f;
 
@@ -47,6 +50,8 @@ public class Movimiento_jugador : MonoBehaviour
 
     void Start()
     {
+        anim=GetComponentInChildren<Animator>();
+
         rb  = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         
@@ -130,6 +135,13 @@ public class Movimiento_jugador : MonoBehaviour
 
     void Update()
     {
+        anim.SetFloat("YSpeed",Input.GetAxis("Vertical"));
+        anim.SetFloat("XSpeed",Input.GetAxis("Horizontal"));
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            anim.SetTrigger("IsGrounded");
+        }
         // 1. La detección de piso SIEMPRE debe ejecutarse, incluso estando paralizado
         Vector3 origen = transform.position + Vector3.down * offsetSuelo;
         Collider[] colliders = Physics.OverlapSphere(origen, radioDeteccion, capasPiso, QueryTriggerInteraction.Ignore);
