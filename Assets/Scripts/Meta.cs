@@ -1,10 +1,32 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
+using TMPro; // Necesario si usas TextMeshPro, si usas Text de Unity cambia a UnityEngine.UI
 
 public class Meta : MonoBehaviour
 {
+    [Header("UI y Efectos")]
+    [Tooltip("El objeto de texto que dice 'Ganaste'")]
+    public GameObject textoGanaste;
+    
+    [Tooltip("El sistema de partículas del confeti")]
+    public ParticleSystem confeti;
+    
+    [Tooltip("Nombre de la escena del menú principal a la que volverá")]
+    public string nombreEscenaMenu = "MenuPrincipal"; // Cambia esto por el nombre real de tu escena de menú
+
     private bool metaAlcanzada = false;
 
     public bool MetaAlcanzada => metaAlcanzada;
+
+    private void Start()
+    {
+        // Nos aseguramos de que el texto de ganar empiece desactivado
+        if (textoGanaste != null)
+        {
+            textoGanaste.SetActive(false);
+        }
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -41,13 +63,35 @@ public class Meta : MonoBehaviour
         // Mensaje en consola
         Debug.Log("¡¡¡META ALCANZADA!!!", gameObject);
 
-        // Opcional: hacer algo más (destruir, desactivar, cambiar color, etc.)
-        // GetComponent<Renderer>().material.color = Color.green;
+        // 1. Mostrar texto "Ganaste"
+        if (textoGanaste != null)
+        {
+            textoGanaste.SetActive(true);
+        }
+
+        // 2. Hacer caer confeti
+        if (confeti != null)
+        {
+            confeti.Play();
+        }
+
+        // 3. Esperar 5 segundos y volver al menú
+        StartCoroutine(VolverAlMenu(5f));
+    }
+
+    private IEnumerator VolverAlMenu(float tiempoEspera)
+    {
+        // Esperamos los segundos indicados
+        yield return new WaitForSeconds(tiempoEspera);
+        
+        // Cargamos la escena del menú
+        SceneManager.LoadScene(nombreEscenaMenu);
     }
 
     // Método para resetear la meta si es necesario
     public void ResetearMeta()
     {
         metaAlcanzada = false;
+        if (textoGanaste != null) textoGanaste.SetActive(false);
     }
 }
