@@ -1511,19 +1511,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: ffeb0ab7965a1204b907df2a8185ac63, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.1
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffeb0ab7965a1204b907df2a8185ac63, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.1
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffeb0ab7965a1204b907df2a8185ac63, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.1
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffeb0ab7965a1204b907df2a8185ac63, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.18
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffeb0ab7965a1204b907df2a8185ac63, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1565,10 +1565,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: modeladotpose
       objectReference: {fileID: 0}
-    - target: {fileID: 5866666021909216657, guid: ffeb0ab7965a1204b907df2a8185ac63, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 105f33dffdda63143aafa385d69a1f78, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2461,6 +2457,7 @@ GameObject:
   - component: {fileID: 2129083065}
   - component: {fileID: 2129083066}
   - component: {fileID: 2129083068}
+  - component: {fileID: 2129083069}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -2525,7 +2522,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2129083058}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -2648,6 +2645,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Logica_Respawn
   puntoInicio: {fileID: 784672577}
+--- !u!95 &2129083069
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2129083058}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: ffeb0ab7965a1204b907df2a8185ac63, type: 3}
+  m_Controller: {fileID: 9100000, guid: bb694ef65d01ea34a8420b60670a2852, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
