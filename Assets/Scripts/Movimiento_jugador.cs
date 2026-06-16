@@ -1,13 +1,14 @@
 using UnityEngine;
 using System.Collections;
 
-
 public class Movimiento_jugador : MonoBehaviour
 {
     private Animator anim;
+    private Rigidbody rb;
 
-    private float fuerzaMovimiento = 20f;
-    private float velocidadMaxima = 5f;
+    [Header("Movimiento Base")]
+    public float fuerzaMovimiento = 20f;
+    public float velocidadMaxima = 5f;
 
     [Header("Salto Cargado")]
     [Tooltip("Fuerza máxima al cargar el salto al 100%")]
@@ -16,18 +17,28 @@ public class Movimiento_jugador : MonoBehaviour
     public float velocidadCarga = 0.5f;
 
     [Header("Detección de Piso")]
-    [Tooltip("Radio de la esfera de detección de suelo (ajustar según el tamaño del jugador)")]
     public float radioDeteccion = 0.3f;
-    [Tooltip("Layer del suelo (dejar en 'Everything' si no hay layers específicos)")]
     public LayerMask capasPiso = ~0;
-    [Tooltip("Desplazamiento hacia abajo desde el centro del jugador para la esfera de detección")]
     public float offsetSuelo = 1f;
 
-    // (La burbuja ahora la genera `ParalisisBurbuja.cs` desde la habilidad)
-
-    private Rigidbody rb;
-    public bool tocaPiso; // calculado por CheckSphere cada frame
+    // --- Variables de Estado ---
+    public bool tocaPiso; 
     private bool paralizado = false;
+    public bool IsParalizado => paralizado;
+
+    // --- Lógica de Input (Para separar Update de FixedUpdate) ---
+    private float inputH = 0f;
+    private float inputV = 0f;
+
+    // --- Lógica de carga (click izquierdo) ---
+    private bool clickPresionado = false;
+    private float tiempoPresionado = 0f;
+    private bool modoCargar = false;
+    private float cargaActual = 0f; 
+    private bool saltoCargadoCancelado = false;
+    private const float tiempoActivacionCarga = 0.3f;
+
+    // --- Variables visuales (Parálisis) ---
     private Color colorOriginal = Color.white;
     private Renderer meshRenderer;
     private Renderer[] allRenderers;
@@ -35,82 +46,69 @@ public class Movimiento_jugador : MonoBehaviour
     private Color[][] originalEmissionColors;
     private bool[][] originalEmissionEnabled;
 
-    // Propiedad pública para que el script de habilidades sepa si estamos congelados
-    public bool IsParalizado => paralizado;
-
-    // --- Lógica de carga (click izquierdo) ---
-    private bool clickPresionado = false;
-    private float tiempoPresionado = 0f;
-    private bool modoCargar = false;
-    private float cargaActual = 0f; // 0 a 1
-    private bool saltoCargadoCancelado = false;
-
-    // --- Constante de activación ---
-    private const float tiempoActivacionCarga = 0.3f;
-
     void Start()
     {
-        anim=GetComponentInChildren<Animator>();
-
-        rb  = GetComponent<Rigidbody>();
+        // Busca el Animator en tu modelo 3D (el hijo)
+        anim = GetComponentInChildren<Animator>();
+        rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         
-        // Obtener todos los renderers para permitir cambiar color a jugadores con SkinnedMeshRenderer
-        allRenderers = GetComponentsInChildren<Renderer>(true);
-        if (allRenderers != null && allRenderers.Length > 0)
+        InicializarColores();
+    }
+
+    void Update()
+    {
+        // 1. DETECCIÓN DE PISO (Se ejecuta siempre)
+        DetectarSuelo();
+
+        // 2. PARÁLISIS (Si está congelado, resetea la carga y no lee teclas)
+        if (paralizado)
         {
-            meshRenderer = allRenderers[0];
-            // Guardar colores originales por renderer/material
-            originalColors = new Color[allRenderers.Length][];
-            originalEmissionColors = new Color[allRenderers.Length][];
-            originalEmissionEnabled = new bool[allRenderers.Length][];
-            for (int i = 0; i < allRenderers.Length; i++)
+            ResetearCargaSalto();
+            // Mandamos velocidad 0 al Animator para que se quede quieto
+            if (anim != null)
             {
-                var r = allRenderers[i];
-                var mats = r.materials; // this makes instances so changes won't affect sharedMaterials
-                originalColors[i] = new Color[mats.Length];
-                originalEmissionColors[i] = new Color[mats.Length];
-                originalEmissionEnabled[i] = new bool[mats.Length];
-                for (int j = 0; j < mats.Length; j++)
-                {
-                    var m = mats[j];
-                    if (m == null) { originalColors[i][j] = Color.white; continue; }
-                    if (m.HasProperty("_BaseColor"))
-                        originalColors[i][j] = m.GetColor("_BaseColor");
-                    else if (m.HasProperty("_Color"))
-                        originalColors[i][j] = m.GetColor("_Color");
-                    else
-                        originalColors[i][j] = m.color;
-                    // store emission state/color
-                    if (m.HasProperty("_EmissionColor"))
-                    {
-                        originalEmissionColors[i][j] = m.GetColor("_EmissionColor");
-                        originalEmissionEnabled[i][j] = m.IsKeywordEnabled("_EMISSION");
-                    }
-                }
+                anim.SetFloat("XSpeed", 0f);
+                anim.SetFloat("YSpeed", 0f);
             }
-            // Set a default from first material
-            if (originalColors.Length > 0 && originalColors[0].Length > 0)
-                colorOriginal = originalColors[0][0];
+            return; 
         }
+
+        // 3. LECTURA DE TECLADO Y ANIMADOR
+        inputH = Input.GetAxisRaw("Horizontal");
+        inputV = Input.GetAxisRaw("Vertical");
+
+        // Le enviamos los inputs limpios al Animator Tree (Respetando mayúsculas)
+        if (anim != null)
+        {
+            anim.SetFloat("XSpeed", inputH);
+            anim.SetFloat("YSpeed", inputV);
+        }
+
+        // 4. SALTO INSTANTÁNEO (Espacio)
+        if (Input.GetButtonDown("Jump") && tocaPiso)
+        {
+            rb.AddForce(Vector3.up * fuerzaSaltoMaxima * 0.5f, ForceMode.Impulse);
+            
+            if (anim != null) anim.SetTrigger("IsGrounded");
+
+            if (modoCargar)
+            {
+                ResetearCargaSalto();
+                saltoCargadoCancelado = true;
+            }
+        }
+
+        // 5. LÓGICA DE SALTO CARGADO (Click Izquierdo)
+        ProcesarSaltoCargado();
     }
 
     void FixedUpdate()
     {
         if (paralizado) return;
 
-        float movHorizontal = Input.GetAxisRaw("Horizontal");
-        float movVertical   = Input.GetAxisRaw("Vertical");
-
-        anim.SetFloat("Yspeed",movVertical);
-        anim.SetFloat("Xspeed",movHorizontal);
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            anim.SetTrigger("IsGrounded");
-        }
-
-        Vector3 direccion = (transform.right * movHorizontal + transform.forward * movVertical).normalized;
+        // FÍSICAS DE MOVIMIENTO (Se aplican acá basándose en los inputs del Update)
+        Vector3 direccion = (transform.right * inputH + transform.forward * inputV).normalized;
 
         if (modoCargar && tocaPiso)
         {
@@ -121,30 +119,22 @@ public class Movimiento_jugador : MonoBehaviour
             else
             {
                 rb.AddForce(direccion * fuerzaMovimiento, ForceMode.Force);
-                Vector3 velH = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-                if (velH.magnitude > velocidadMaxima)
-                {
-                    Vector3 velLim = velH.normalized * velocidadMaxima;
-                    rb.linearVelocity = new Vector3(velLim.x, rb.linearVelocity.y, velLim.z);
-                }
+                LimitarVelocidad();
             }
         }
         else
         {
             rb.AddForce(direccion * fuerzaMovimiento, ForceMode.Force);
-            Vector3 velHorizontal = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-            if (velHorizontal.magnitude > velocidadMaxima)
-            {
-                Vector3 velLimitada = velHorizontal.normalized * velocidadMaxima;
-                rb.linearVelocity = new Vector3(velLimitada.x, rb.linearVelocity.y, velLimitada.z);
-            }
+            LimitarVelocidad();
         }
     }
 
-    void Update()
+    // ==========================================
+    // MÉTODOS AUXILIARES
+    // ==========================================
+
+    private void DetectarSuelo()
     {
-        
-        // 1. La detección de piso SIEMPRE debe ejecutarse, incluso estando paralizado
         Vector3 origen = transform.position + Vector3.down * offsetSuelo;
         Collider[] colliders = Physics.OverlapSphere(origen, radioDeteccion, capasPiso, QueryTriggerInteraction.Ignore);
         tocaPiso = false;
@@ -156,37 +146,19 @@ public class Movimiento_jugador : MonoBehaviour
                 break;
             }
         }
+    }
 
-        // 2. Si nos paralizan, reseteamos la carga del salto para evitar bugs ópticos o lógicos
-        if (paralizado)
-        {
-            ResetearCargaSalto();
-            return; // Detiene el procesamiento de inputs de movimiento
-        }
-
-        // ── Salto instantáneo con Espacio ─────────────────────────────────
-        if (Input.GetButtonDown("Jump") && tocaPiso)
-        {
-            rb.AddForce(Vector3.up * fuerzaSaltoMaxima * 0.5f, ForceMode.Impulse);
-
-            if (modoCargar)
-            {
-                ResetearCargaSalto();
-                saltoCargadoCancelado = true;
-            }
-        }
-
-        // ── Inicio de carga: solo si está en piso ─────────────────────────
+    private void ProcesarSaltoCargado()
+    {
         if (Input.GetMouseButtonDown(0) && tocaPiso)
         {
-            clickPresionado      = true;
-            tiempoPresionado     = 0f;
-            modoCargar           = false;
-            cargaActual          = 0f;
+            clickPresionado = true;
+            tiempoPresionado = 0f;
+            modoCargar = false;
+            cargaActual = 0f;
             saltoCargadoCancelado = false;
         }
 
-        // ── Acumulación de carga: cancelar si sale del piso ───────────────
         if (Input.GetMouseButton(0) && clickPresionado)
         {
             if (!tocaPiso)
@@ -198,32 +170,86 @@ public class Movimiento_jugador : MonoBehaviour
                 tiempoPresionado += Time.deltaTime;
                 if (tiempoPresionado >= tiempoActivacionCarga)
                 {
-                    modoCargar  = true;
+                    modoCargar = true;
                     cargaActual = Mathf.Clamp01(cargaActual + velocidadCarga * Time.deltaTime);
                 }
             }
         }
 
-        // ── Soltar click ──────────────────────────────────────────────────
         if (Input.GetMouseButtonUp(0))
         {
             if (clickPresionado && tocaPiso && modoCargar && !saltoCargadoCancelado)
             {
                 float fuerza = Mathf.Lerp(fuerzaSaltoMaxima * 0.5f, fuerzaSaltoMaxima, cargaActual);
                 rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
+                
+                // Ejecutamos la animación de salto también al soltar el salto cargado
+                if (anim != null) anim.SetTrigger("IsGrounded");
             }
-
             ResetearCargaSalto();
+        }
+    }
+
+    private void LimitarVelocidad()
+    {
+        Vector3 velHorizontal = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        if (velHorizontal.magnitude > velocidadMaxima)
+        {
+            Vector3 velLimitada = velHorizontal.normalized * velocidadMaxima;
+            rb.linearVelocity = new Vector3(velLimitada.x, rb.linearVelocity.y, velLimitada.z);
         }
     }
 
     private void ResetearCargaSalto()
     {
-        clickPresionado       = false;
-        modoCargar            = false;
-        cargaActual           = 0f;
-        tiempoPresionado      = 0f;
+        clickPresionado = false;
+        modoCargar = false;
+        cargaActual = 0f;
+        tiempoPresionado = 0f;
         saltoCargadoCancelado = false;
+    }
+
+    // ==========================================
+    // MÉTODOS DE PARÁLISIS Y COLOR (Intactos)
+    // ==========================================
+
+    private void InicializarColores()
+    {
+        allRenderers = GetComponentsInChildren<Renderer>(true);
+        if (allRenderers != null && allRenderers.Length > 0)
+        {
+            meshRenderer = allRenderers[0];
+            originalColors = new Color[allRenderers.Length][];
+            originalEmissionColors = new Color[allRenderers.Length][];
+            originalEmissionEnabled = new bool[allRenderers.Length][];
+            
+            for (int i = 0; i < allRenderers.Length; i++)
+            {
+                var r = allRenderers[i];
+                var mats = r.materials; 
+                originalColors[i] = new Color[mats.Length];
+                originalEmissionColors[i] = new Color[mats.Length];
+                originalEmissionEnabled[i] = new bool[mats.Length];
+                
+                for (int j = 0; j < mats.Length; j++)
+                {
+                    var m = mats[j];
+                    if (m == null) { originalColors[i][j] = Color.white; continue; }
+                    
+                    if (m.HasProperty("_BaseColor")) originalColors[i][j] = m.GetColor("_BaseColor");
+                    else if (m.HasProperty("_Color")) originalColors[i][j] = m.GetColor("_Color");
+                    else originalColors[i][j] = m.color;
+                    
+                    if (m.HasProperty("_EmissionColor"))
+                    {
+                        originalEmissionColors[i][j] = m.GetColor("_EmissionColor");
+                        originalEmissionEnabled[i][j] = m.IsKeywordEnabled("_EMISSION");
+                    }
+                }
+            }
+            if (originalColors.Length > 0 && originalColors[0].Length > 0)
+                colorOriginal = originalColors[0][0];
+        }
     }
 
     void OnGUI()
@@ -251,14 +277,12 @@ public class Movimiento_jugador : MonoBehaviour
 
     public void Paralizar(float tiempo)
     {
-        // Evita superponer corrutinas si ya estás paralizado
         StopAllCoroutines(); 
         StartCoroutine(RutinaParalisis(tiempo));
     }
 
     public void ParalizarConEfecto(float tiempo)
     {
-        // Evita superponer corrutinas si ya estás paralizado
         StopAllCoroutines(); 
         StartCoroutine(RutinaParalisiscConEfecto(tiempo));
     }
@@ -266,8 +290,6 @@ public class Movimiento_jugador : MonoBehaviour
     private IEnumerator RutinaParalisis(float tiempo)
     {
         paralizado = true;
-        // NO resetear la velocidad: conservar la inercia inicial mientras el jugador
-        // queda paralizado (no podrá controlar el movimiento, pero mantiene velocidad).
         yield return new WaitForSeconds(tiempo);
         paralizado = false;
     }
@@ -275,17 +297,15 @@ public class Movimiento_jugador : MonoBehaviour
     private IEnumerator RutinaParalisiscConEfecto(float tiempo)
     {
         paralizado = true;
-
-        // Cambiar a color celeste (para todos los renderers y materiales)
-        // Aplicar tint hacia azul independientemente de la textura
         Color azul = new Color(0f, 0.6f, 1f, 1f);
-        float tintStrength = 0.8f; // 0..1, cuánto aplicar el azul sobre el color original
+        float tintStrength = 0.8f; 
+        
         if (allRenderers != null)
         {
             for (int i = 0; i < allRenderers.Length; i++)
             {
                 var r = allRenderers[i];
-                var mats = r.materials; // instances
+                var mats = r.materials; 
                 for (int j = 0; j < mats.Length; j++)
                 {
                     var m = mats[j];
@@ -293,11 +313,11 @@ public class Movimiento_jugador : MonoBehaviour
                     Color orig = Color.white;
                     if (j < originalColors[i].Length) orig = originalColors[i][j];
                     Color target = Color.Lerp(orig, azul, tintStrength);
+                    
                     if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", target);
                     if (m.HasProperty("_Color")) m.SetColor("_Color", target);
                     if (!m.HasProperty("_BaseColor") && !m.HasProperty("_Color")) m.color = target;
 
-                    // Emission tint to make effect visible on textured materials
                     if (m.HasProperty("_EmissionColor"))
                     {
                         m.EnableKeyword("_EMISSION");
@@ -309,18 +329,18 @@ public class Movimiento_jugador : MonoBehaviour
 
         yield return new WaitForSeconds(tiempo);
 
-        // Restaurar colores originales y estado de emisión
         if (allRenderers != null && originalColors != null)
         {
             for (int i = 0; i < allRenderers.Length; i++)
             {
                 var r = allRenderers[i];
-                var mats = r.materials; // instances
+                var mats = r.materials; 
                 for (int j = 0; j < mats.Length && j < originalColors[i].Length; j++)
                 {
                     var m = mats[j];
                     if (m == null) continue;
                     Color orig = originalColors[i][j];
+                    
                     if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", orig);
                     if (m.HasProperty("_Color")) m.SetColor("_Color", orig);
                     if (!m.HasProperty("_BaseColor") && !m.HasProperty("_Color")) m.color = orig;
@@ -335,7 +355,6 @@ public class Movimiento_jugador : MonoBehaviour
                 }
             }
         }
-
         paralizado = false;
     }
 }

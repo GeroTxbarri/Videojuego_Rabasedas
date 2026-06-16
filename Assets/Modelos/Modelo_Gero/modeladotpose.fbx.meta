@@ -536,7 +536,7 @@ ModelImporter:
     legStretch: 0.05
     feetSpacing: 0
     globalScale: 1
-    rootMotionBoneName: 
+    rootMotionBoneName: Circle008
     hasTranslationDoF: 0
     hasExtraRoot: 1
     skeletonHasParents: 1
