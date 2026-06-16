@@ -10,6 +10,10 @@ public class Movimiento_jugador : MonoBehaviour
     public float fuerzaMovimiento = 20f;
     public float velocidadMaxima = 5f;
 
+    [Header("Correr")]
+    [Tooltip("Porcentaje extra de velocidad al correr con Shift (ej: 50 = 50% más rápido)")]
+    public float porcentajeCorriendo = 50f;
+
     [Header("Rotacion")]
     [Tooltip("Qué tan rápido el personaje gira hacia la dirección de movimiento")]
     public float velocidadRotacion = 12f;
@@ -36,6 +40,7 @@ public class Movimiento_jugador : MonoBehaviour
     // --- Lógica de Input (Para separar Update de FixedUpdate) ---
     private float inputH = 0f;
     private float inputV = 0f;
+    private bool corriendo = false;
 
     // --- Lógica de carga (click izquierdo) ---
     private bool clickPresionado = false;
@@ -87,6 +92,7 @@ public class Movimiento_jugador : MonoBehaviour
         // 3. LECTURA DE TECLADO Y ANIMADOR
         inputH = Input.GetAxisRaw("Horizontal");
         inputV = Input.GetAxisRaw("Vertical");
+        corriendo = Input.GetKey(KeyCode.LeftShift);
 
         // Le enviamos los inputs limpios al Animator Tree (Respetando mayúsculas)
         if (anim != null)
@@ -121,6 +127,9 @@ public class Movimiento_jugador : MonoBehaviour
         if (paralizado) return;
 
         // FÍSICAS DE MOVIMIENTO (Se aplican acá basándose en los inputs del Update)
+        // Multiplicador de velocidad al correr
+        float multiplicador = corriendo ? 1f + porcentajeCorriendo / 100f : 1f;
+
         // Dirección relativa a la cámara (ignorando el eje Y de la cámara)
         Vector3 camFrente = Vector3.Scale(camara.forward, new Vector3(1f, 0f, 1f)).normalized;
         Vector3 camDerecha = Vector3.Scale(camara.right,   new Vector3(1f, 0f, 1f)).normalized;
@@ -134,14 +143,14 @@ public class Movimiento_jugador : MonoBehaviour
             }
             else
             {
-                rb.AddForce(direccion * fuerzaMovimiento, ForceMode.Force);
-                LimitarVelocidad();
+                rb.AddForce(direccion * fuerzaMovimiento * multiplicador, ForceMode.Force);
+                LimitarVelocidad(multiplicador);
             }
         }
         else
         {
-            rb.AddForce(direccion * fuerzaMovimiento, ForceMode.Force);
-            LimitarVelocidad();
+            rb.AddForce(direccion * fuerzaMovimiento * multiplicador, ForceMode.Force);
+            LimitarVelocidad(multiplicador);
         }
     }
 
@@ -225,12 +234,13 @@ public class Movimiento_jugador : MonoBehaviour
         }
     }
 
-    private void LimitarVelocidad()
+    private void LimitarVelocidad(float multiplicador = 1f)
     {
+        float velMax = velocidadMaxima * multiplicador;
         Vector3 velHorizontal = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        if (velHorizontal.magnitude > velocidadMaxima)
+        if (velHorizontal.magnitude > velMax)
         {
-            Vector3 velLimitada = velHorizontal.normalized * velocidadMaxima;
+            Vector3 velLimitada = velHorizontal.normalized * velMax;
             rb.linearVelocity = new Vector3(velLimitada.x, rb.linearVelocity.y, velLimitada.z);
         }
     }
