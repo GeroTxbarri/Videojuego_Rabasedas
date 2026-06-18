@@ -2,7 +2,13 @@ using UnityEngine;
 public class Proyectil : MonoBehaviour
 {
     public float radioExplosion = 4f;
-    public float fuerzaEmpuje = 15f; 
+    public float fuerzaEmpuje = 15f;
+    public float tiempoVida = 5f;
+
+    void Start()
+    {
+        Destroy(gameObject, tiempoVida);
+    }
 
     void OnCollisionEnter(Collision collision)
     {
