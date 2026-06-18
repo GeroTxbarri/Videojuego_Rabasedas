@@ -4,7 +4,7 @@ public class Paralizante : MonoBehaviour
 {
     public float tiempoParalisis = 3f;
     public float radioEfecto = 5f;
-    public Movimiento_jugador portador; // Referencia al que disparó para no afectarlo
+    public Movimiento_jugador portador;
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -20,15 +20,18 @@ public class Paralizante : MonoBehaviour
                 jugador = obj.GetComponentInParent<Movimiento_jugador>();
             }
 
-            // No paralizar al portador (quien disparó la habilidad)
             if (jugador != null && jugador != portador)
             {
-                jugador.ParalizarConEfecto(tiempoParalisis);
+                jugador.Paralizar(tiempoParalisis);
                 jugadoresParalizados++;
             }
         }
 
-        Debug.Log($"¡Proyectil paralizante activado! {jugadoresParalizados} jugador(es) paralizado(s) por {tiempoParalisis} segundos.");
+        if (jugadoresParalizados > 0)
+        {
+            Debug.Log($"¡Proyectil paralizante impactó! {jugadoresParalizados} jugador(es) paralizado(s) por {tiempoParalisis} segundos.");
+        }
+        
         Destroy(gameObject);
     }
 }
