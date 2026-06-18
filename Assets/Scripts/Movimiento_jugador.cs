@@ -10,6 +10,14 @@ public class Movimiento_jugador : MonoBehaviour
     public float fuerzaMovimiento = 20f;
     public float velocidadMaxima = 5f;
 
+    [Header("Correr")]
+    [Tooltip("Porcentaje extra de velocidad al correr con Shift (ej: 50 = 50% más rápido)")]
+    public float porcentajeCorriendo = 50f;
+
+    [Header("Rotacion")]
+    [Tooltip("Qué tan rápido el personaje gira hacia la dirección de movimiento")]
+    public float velocidadRotacion = 12f;
+
     [Header("Salto Cargado")]
     [Tooltip("Fuerza máxima al cargar el salto al 100%")]
     public float fuerzaSaltoMaxima = 15f;
@@ -21,6 +29,9 @@ public class Movimiento_jugador : MonoBehaviour
     public LayerMask capasPiso = ~0;
     public float offsetSuelo = 1f;
 
+    // --- Referencia a la camara ---
+    private Transform camara;
+
     // --- Variables de Estado ---
     public bool tocaPiso; 
     private bool paralizado = false;
@@ -29,6 +40,7 @@ public class Movimiento_jugador : MonoBehaviour
     // --- Lógica de Input (Para separar Update de FixedUpdate) ---
     private float inputH = 0f;
     private float inputV = 0f;
+    private bool corriendo = false;
 
     // --- Lógica de carga (click izquierdo) ---
     private bool clickPresionado = false;
@@ -52,7 +64,10 @@ public class Movimiento_jugador : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-        
+
+        // Obtiene la camara principal
+        camara = Camera.main.transform;
+
         InicializarColores();
     }
 
@@ -77,6 +92,7 @@ public class Movimiento_jugador : MonoBehaviour
         // 3. LECTURA DE TECLADO Y ANIMADOR
         inputH = Input.GetAxisRaw("Horizontal");
         inputV = Input.GetAxisRaw("Vertical");
+        corriendo = Input.GetKey(KeyCode.LeftShift);
 
         // Le enviamos los inputs limpios al Animator Tree (Respetando mayúsculas)
         if (anim != null)
@@ -84,6 +100,9 @@ public class Movimiento_jugador : MonoBehaviour
             anim.SetFloat("XSpeed", inputH);
             anim.SetFloat("YSpeed", inputV);
         }
+
+        // 3b. ROTACION DEL PERSONAJE hacia la dirección de movimiento
+        RotarHaciaMovimiento();
 
         // 4. SALTO INSTANTÁNEO (Espacio)
         if (Input.GetButtonDown("Jump") && tocaPiso)
@@ -108,7 +127,13 @@ public class Movimiento_jugador : MonoBehaviour
         if (paralizado) return;
 
         // FÍSICAS DE MOVIMIENTO (Se aplican acá basándose en los inputs del Update)
-        Vector3 direccion = (transform.right * inputH + transform.forward * inputV).normalized;
+        // Multiplicador de velocidad al correr
+        float multiplicador = corriendo ? 1f + porcentajeCorriendo / 100f : 1f;
+
+        // Dirección relativa a la cámara (ignorando el eje Y de la cámara)
+        Vector3 camFrente = Vector3.Scale(camara.forward, new Vector3(1f, 0f, 1f)).normalized;
+        Vector3 camDerecha = Vector3.Scale(camara.right,   new Vector3(1f, 0f, 1f)).normalized;
+        Vector3 direccion = (camDerecha * inputH + camFrente * inputV).normalized;
 
         if (modoCargar && tocaPiso)
         {
@@ -118,14 +143,33 @@ public class Movimiento_jugador : MonoBehaviour
             }
             else
             {
-                rb.AddForce(direccion * fuerzaMovimiento, ForceMode.Force);
-                LimitarVelocidad();
+                rb.AddForce(direccion * fuerzaMovimiento * multiplicador, ForceMode.Force);
+                LimitarVelocidad(multiplicador);
             }
         }
         else
         {
-            rb.AddForce(direccion * fuerzaMovimiento, ForceMode.Force);
-            LimitarVelocidad();
+            rb.AddForce(direccion * fuerzaMovimiento * multiplicador, ForceMode.Force);
+            LimitarVelocidad(multiplicador);
+        }
+    }
+
+    // ==========================================
+    // ROTACIÓN DEL PERSONAJE
+    // ==========================================
+
+    private void RotarHaciaMovimiento()
+    {
+        if (camara == null) return;
+
+        Vector3 camFrente  = Vector3.Scale(camara.forward, new Vector3(1f, 0f, 1f)).normalized;
+        Vector3 camDerecha = Vector3.Scale(camara.right,   new Vector3(1f, 0f, 1f)).normalized;
+        Vector3 dir = (camDerecha * inputH + camFrente * inputV).normalized;
+
+        if (dir.sqrMagnitude > 0.01f)
+        {
+            Quaternion rotacionObjetivo = Quaternion.LookRotation(dir, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, velocidadRotacion * Time.deltaTime);
         }
     }
 
@@ -190,12 +234,13 @@ public class Movimiento_jugador : MonoBehaviour
         }
     }
 
-    private void LimitarVelocidad()
+    private void LimitarVelocidad(float multiplicador = 1f)
     {
+        float velMax = velocidadMaxima * multiplicador;
         Vector3 velHorizontal = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        if (velHorizontal.magnitude > velocidadMaxima)
+        if (velHorizontal.magnitude > velMax)
         {
-            Vector3 velLimitada = velHorizontal.normalized * velocidadMaxima;
+            Vector3 velLimitada = velHorizontal.normalized * velMax;
             rb.linearVelocity = new Vector3(velLimitada.x, rb.linearVelocity.y, velLimitada.z);
         }
     }
