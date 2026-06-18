@@ -19,7 +19,11 @@ public class Camara_Jugador : MonoBehaviour
     }
 
     void LateUpdate()
+
     {
+        
+        sensibilidad = PlayerPrefs.GetFloat("Sensibilidad", 2f);
+
         float mouseX = Input.GetAxis("Mouse X") * sensibilidad;
         float mouseY = Input.GetAxis("Mouse Y") * sensibilidad;
 
