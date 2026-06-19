@@ -4,6 +4,9 @@ public class Meta : MonoBehaviour
 {
     private bool metaAlcanzada = false;
 
+    [Header("Referencias")]
+    public WinMenu winMenu;
+
     public bool MetaAlcanzada => metaAlcanzada;
 
     private void OnCollisionEnter(Collision collision)
@@ -40,6 +43,12 @@ public class Meta : MonoBehaviour
 
         // Mensaje en consola
         Debug.Log("¡¡¡META ALCANZADA!!!", gameObject);
+
+        // Mostrar el menú de victoria
+        if (winMenu != null)
+        {
+            winMenu.MostrarMenuVictoria();
+        }
 
         // Opcional: hacer algo más (destruir, desactivar, cambiar color, etc.)
         // GetComponent<Renderer>().material.color = Color.green;
