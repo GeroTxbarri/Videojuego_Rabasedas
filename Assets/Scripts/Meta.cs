@@ -63,14 +63,17 @@ public class Meta : MonoBehaviour
         // Mensaje en consola
         Debug.Log("¡¡¡META ALCANZADA!!!", gameObject);
 
-        // Mostrar el menú de victoria
+        // Hacer caer confeti (de la versión original de main)
+        if (confeti != null)
+        {
+            confeti.Play();
+        }
+
+        // Mostrar el menú de victoria (de nuestra versión)
         if (winMenu != null)
         {
             winMenu.MostrarMenuVictoria();
         }
-
-        // Opcional: hacer algo más (destruir, desactivar, cambiar color, etc.)
-        // GetComponent<Renderer>().material.color = Color.green;
     }
 
     // Método para resetear la meta si es necesario

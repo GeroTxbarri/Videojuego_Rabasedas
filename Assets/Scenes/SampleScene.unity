@@ -2580,10 +2580,14 @@ Transform:
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &1289261861
 =======
 --- !u!1 &1343956238
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+--- !u!1 &1343956238
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2591,6 +2595,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+<<<<<<< HEAD
 <<<<<<< HEAD
   - component: {fileID: 1289261864}
   - component: {fileID: 1289261863}
@@ -2665,16 +2670,22 @@ GameObject:
   m_Layer: 5
   m_Name: textoGanar
 =======
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   - component: {fileID: 1343956240}
   - component: {fileID: 1343956239}
   m_Layer: 0
   m_Name: Administrador_Pausa
+<<<<<<< HEAD
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+<<<<<<< HEAD
 <<<<<<< HEAD
 --- !u!224 &1339686195
 RectTransform:
@@ -2699,11 +2710,15 @@ RectTransform:
 =======
 --- !u!114 &1343956239
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+--- !u!114 &1343956239
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
   m_GameObject: {fileID: 1339686194}
   m_Enabled: 1
@@ -2712,6 +2727,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 =======
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_GameObject: {fileID: 1343956238}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -2842,7 +2859,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+<<<<<<< HEAD
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
@@ -2851,6 +2871,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+<<<<<<< HEAD
 <<<<<<< HEAD
   m_text: "\xA1Ganaste!"
   m_isRightToLeft: 0
@@ -2926,6 +2947,8 @@ MonoBehaviour:
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1339686197
 =======
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 1
   m_PreserveAspect: 0
@@ -2937,17 +2960,24 @@ MonoBehaviour:
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1354140636
+<<<<<<< HEAD
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_GameObject: {fileID: 1339686194}
 =======
   m_GameObject: {fileID: 1354140632}
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+  m_GameObject: {fileID: 1354140632}
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_CullTransparentMesh: 1
 --- !u!1 &1397844447
 GameObject:
@@ -4005,6 +4035,7 @@ Transform:
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1001 &1893604868
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4066,6 +4097,9 @@ PrefabInstance:
 =======
 --- !u!1 &1934078538
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+--- !u!1 &1934078538
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4073,6 +4107,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+<<<<<<< HEAD
 <<<<<<< HEAD
   - component: {fileID: 2003628241}
   - component: {fileID: 2003628240}
@@ -4183,17 +4218,23 @@ GameObject:
   m_Layer: 0
   m_Name: Confetti
 =======
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   - component: {fileID: 1934078541}
   - component: {fileID: 1934078540}
   - component: {fileID: 1934078539}
   m_Layer: 0
   m_Name: EventSystem
+<<<<<<< HEAD
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+<<<<<<< HEAD
 <<<<<<< HEAD
 --- !u!199 &2047539281
 ParticleSystemRenderer:
@@ -4202,10 +4243,15 @@ ParticleSystemRenderer:
 --- !u!114 &1934078539
 MonoBehaviour:
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+--- !u!114 &1934078539
+MonoBehaviour:
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
   m_GameObject: {fileID: 2047539280}
   m_Enabled: 1
@@ -4283,6 +4329,8 @@ MonoBehaviour:
 --- !u!198 &2047539282
 ParticleSystem:
 =======
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_GameObject: {fileID: 1934078538}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -4310,11 +4358,15 @@ ParticleSystem:
   m_ScrollDeltaPerTick: 6
 --- !u!114 &1934078540
 MonoBehaviour:
+<<<<<<< HEAD
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
   m_GameObject: {fileID: 2047539280}
   serializedVersion: 8
@@ -9035,6 +9087,8 @@ MonoBehaviour:
     vectorLabel1_3: W
 --- !u!4 &2047539283
 =======
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_GameObject: {fileID: 1934078538}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -9045,30 +9099,42 @@ MonoBehaviour:
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &1934078541
+<<<<<<< HEAD
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_GameObject: {fileID: 2047539280}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 3.69, y: 3.4, z: 15.39}
 =======
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_GameObject: {fileID: 1934078538}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
+<<<<<<< HEAD
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 =======
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2044392030
 GameObject:
@@ -9207,7 +9273,10 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2044392030}
   m_CullTransparentMesh: 1
+<<<<<<< HEAD
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
 --- !u!1 &2066908792 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7bfbec76e919f134686383f9d52c834d, type: 3}
@@ -9461,11 +9530,16 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
 <<<<<<< HEAD
+<<<<<<< HEAD
   - {fileID: 1289261864}
 =======
   - {fileID: 381395075}
   - {fileID: 1343956240}
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+  - {fileID: 381395075}
+  - {fileID: 1343956240}
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1253661336}
@@ -9488,6 +9562,7 @@ SceneRoots:
   - {fileID: 789280153}
   - {fileID: 1826643271}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - {fileID: 1893604868}
   - {fileID: 2003628241}
   - {fileID: 2047539283}
@@ -9495,3 +9570,6 @@ SceneRoots:
 =======
   - {fileID: 1934078541}
 >>>>>>> f141d9f (menu de configuracion y menu de pausa)
+=======
+  - {fileID: 1934078541}
+>>>>>>> 553b870908e6da2bc1bc176feb367831dbc7be35
