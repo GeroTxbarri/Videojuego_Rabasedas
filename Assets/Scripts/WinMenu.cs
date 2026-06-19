@@ -8,8 +8,14 @@ public class WinMenu : MonoBehaviour
     [Tooltip("Arrastra aquí el texto TextMeshPro donde se mostrará quién ganó")]
     public TextMeshProUGUI textoVictoria;
     
+    [Tooltip("Arrastra aquí el texto TextMeshPro donde se mostrará el tiempo sobrante")]
+    public TextMeshProUGUI textoTiempoSobrante;
+
     [Tooltip("Arrastra aquí el panel principal del Menú de Victoria")]
     public GameObject panelVictoria;
+
+    [Header("Referencias")]
+    public Cronometro cronometro;
 
     private void Start()
     {
@@ -17,6 +23,12 @@ public class WinMenu : MonoBehaviour
         if (panelVictoria != null)
         {
             panelVictoria.SetActive(false);
+        }
+
+        // Si no asignaron el cronómetro manualmente, intentar buscarlo en la escena
+        if (cronometro == null)
+        {
+            cronometro = FindObjectOfType<Cronometro>();
         }
     }
 
@@ -28,6 +40,15 @@ public class WinMenu : MonoBehaviour
         if (textoVictoria != null)
         {
             textoVictoria.text = "¡El jugador " + personaje + " gano!";
+        }
+
+        // Mostrar tiempo sobrante
+        if (textoTiempoSobrante != null && cronometro != null)
+        {
+            float tiempo = cronometro.ObtenerTiempoRestante();
+            int minutos = (int)(tiempo / 60f);
+            int segundos = (int)(tiempo % 60f);
+            textoTiempoSobrante.text = string.Format("Tiempo sobrante: {0:00}:{1:00}", minutos, segundos);
         }
 
         if (panelVictoria != null)
