@@ -14,6 +14,9 @@ public class Meta : MonoBehaviour
 
     private bool metaAlcanzada = false;
 
+    [Header("Referencias")]
+    public WinMenu winMenu;
+
     public bool MetaAlcanzada => metaAlcanzada;
 
     private void Start()
@@ -60,29 +63,17 @@ public class Meta : MonoBehaviour
         // Mensaje en consola
         Debug.Log("¡¡¡META ALCANZADA!!!", gameObject);
 
-        // 1. Mostrar texto "Ganaste"
-        if (textoGanaste != null)
-        {
-            textoGanaste.SetActive(true);
-        }
-
-        // 2. Hacer caer confeti
+        // Hacer caer confeti (de la versión original de main)
         if (confeti != null)
         {
             confeti.Play();
         }
 
-        // 3. Esperar 5 segundos y volver al menú
-        StartCoroutine(VolverAlMenu(5f));
-    }
-
-    private IEnumerator VolverAlMenu(float tiempoEspera)
-    {
-        // Esperamos los segundos indicados
-        yield return new WaitForSeconds(tiempoEspera);
-        
-        // Cargamos la escena del menú principal (Hardcodeado)
-        SceneManager.LoadScene("Menu_Principal");
+        // Mostrar el menú de victoria (de nuestra versión)
+        if (winMenu != null)
+        {
+            winMenu.MostrarMenuVictoria();
+        }
     }
 
     // Método para resetear la meta si es necesario
