@@ -9,6 +9,9 @@ public class MenuManager : MonoBehaviour
     public GameObject panelSeleccionPersonajes;
     public GameObject panelConfiguracion;
 
+    // Variable privada para recordar temporalmente qué nivel se eligió
+    private string nivelPendiente = "";
+
     // --- NAVEGACIÓN ---
 
     public void AbrirSeleccionPersonajes()
@@ -36,6 +39,9 @@ public class MenuManager : MonoBehaviour
         panelSeleccionPersonajes.SetActive(false);
         panelConfiguracion.SetActive(false);
         panelMenuPrincipal.SetActive(true);
+
+        // Si el jugador vuelve atrás, limpiamos el nivel pendiente por seguridad
+        nivelPendiente = "";
     }
 
     // --- ACCIONES DE JUEGO ---
@@ -47,13 +53,27 @@ public class MenuManager : MonoBehaviour
         PlayerPrefs.SetString("PersonajeElegido", nombrePersonaje);
         PlayerPrefs.Save();
 
-        // Cargamos el nivel de prueba por defecto
-        SceneManager.LoadScene("SampleScene"); 
+        // Si la variable tiene un nivel guardado, carga ese nivel específico.
+        // Si está vacía (porque quizás tocaron "JUGAR" directo desde el menú principal), 
+        // usa "SampleScene" como nivel por defecto.
+        if (!string.IsNullOrEmpty(nivelPendiente))
+        {
+            SceneManager.LoadScene(nivelPendiente);
+        }
+        else
+        {
+            SceneManager.LoadScene("SampleScene"); 
+        }
     }
 
     // Esta función la van a usar los botones del selector de niveles
     public void CargarNivelEspecifico(string nombreEscena)
     {
-        SceneManager.LoadScene(nombreEscena);
+        // 1. Guardamos el nombre de la escena en el "bolsillo"
+        nivelPendiente = nombreEscena;
+
+        // 2. En vez de cargar la escena de golpe, hacemos el cambio de paneles
+        panelSeleccionNiveles.SetActive(false);
+        panelSeleccionPersonajes.SetActive(true);
     }
 }

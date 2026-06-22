@@ -89,18 +89,20 @@ public class Movimiento_jugador : MonoBehaviour
             return; 
         }
 
-        // 3. LECTURA DE TECLADO Y ANIMADOR
+        /// 3. LECTURA DE TECLADO Y ANIMADOR
         inputH = Input.GetAxisRaw("Horizontal");
         inputV = Input.GetAxisRaw("Vertical");
         corriendo = Input.GetKey(KeyCode.LeftShift);
 
-        // Le enviamos los inputs limpios al Animator Tree (Respetando mayúsculas)
+        // Creamos el multiplicador: 2 si aprieta Shift, 1 si camina normal
+        float multiplicadorAnimacion = corriendo ? 2f : 1f;
+
+        // Le enviamos los inputs al Animator multiplicados por el factor
         if (anim != null)
         {
-            anim.SetFloat("XSpeed", inputH);
-            anim.SetFloat("YSpeed", inputV);
+            anim.SetFloat("XSpeed", inputH * multiplicadorAnimacion);
+            anim.SetFloat("YSpeed", inputV * multiplicadorAnimacion);
         }
-
         // 3b. ROTACION DEL PERSONAJE hacia la dirección de movimiento
         RotarHaciaMovimiento();
 
