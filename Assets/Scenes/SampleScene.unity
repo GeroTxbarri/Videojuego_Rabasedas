@@ -2066,6 +2066,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: idleFerrer
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 42c6b13f89d373f4ba1e2102fd6985ac, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 22100000, guid: 13387cd3865e393469a4a9ab65d3190d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2488,6 +2492,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 330585545}
+    - target: {fileID: 2267359631341665696, guid: ed450f559590412449585a2d32f90f02, type: 3}
+      propertyPath: tiempoInicial
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 3570186519337104089, guid: ed450f559590412449585a2d32f90f02, type: 3}
       propertyPath: m_LocalScale.x
       value: 2
