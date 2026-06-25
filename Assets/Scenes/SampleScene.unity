@@ -770,11 +770,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9052172044018070392, guid: c8023342842522a49acd2229dac6afa4, type: 3}
   m_PrefabInstance: {fileID: 554688421}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &554688423 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8562493186480236994, guid: c8023342842522a49acd2229dac6afa4, type: 3}
-  m_PrefabInstance: {fileID: 554688421}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &608129918
 GameObject:
   m_ObjectHideFlags: 0
@@ -2324,13 +2319,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bdddbbde6c48614385f3a9ac1332d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Habilidad_jugador
-  habilidad: 1
+  habilidad: 3
   teclaHabilidad: 101
   factorCaidaLenta: 0.8
   prefabMisil: {fileID: 7643110280385555853, guid: 09fd7c06021c9b94cbf6ecf1bdcfd08c, type: 3}
   fuerzaMisil: 20
   cooldownMisil: 0.5
-  prefabParalizante: {fileID: 145841576888507476, guid: 5f4860a1bb5a27047b5e6b8a9f221d98, type: 3}
+  prefabParalizante: {fileID: 919132149155446097, guid: c49442f6a098c8646ab509f018e53351, type: 3}
   fuerzaParalizante: 15
   tiempoParalisis: 3
   cooldownParalizante: 1
@@ -2385,7 +2380,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CargarPersonaje
   modeloMilitar: {fileID: 363429826}
-  modeloPez: {fileID: 554688423}
+  modeloPez: {fileID: 1054380154}
   modeloRobot: {fileID: 401749245}
   scriptHabilidades: {fileID: 2129083065}
 --- !u!1001 &1783405343652220503
