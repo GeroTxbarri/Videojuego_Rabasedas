@@ -33,7 +33,7 @@ public class CargarPersonaje : MonoBehaviour
                 
             case "Pez":
                 if (modeloPez != null) modeloPez.SetActive(true);
-                if (scriptHabilidades != null) scriptHabilidades.habilidad = (Habilidad_jugador.TipoHabilidad)0;
+                if (scriptHabilidades != null) scriptHabilidades.habilidad = (Habilidad_jugador.TipoHabilidad)3;
                 break;
                 
             case "Robot":
