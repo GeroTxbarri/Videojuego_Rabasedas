@@ -1,2 +1,15 @@
 fileFormatVersion: 2
 guid: 0215abb7ec9499c478c6e3ae4e2d4b71
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - modeloMilitar: {instanceID: 0}
+  - modeloPez: {instanceID: 0}
+  - modeloRobot: {instanceID: 0}
+  - scriptHabilidades: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
