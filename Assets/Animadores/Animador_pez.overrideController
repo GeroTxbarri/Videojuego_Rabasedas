@@ -7,11 +7,5 @@ AnimatorOverrideController:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Animador_pez
-  m_Controller: {fileID: 9100000, guid: 36020d89857d81c4cb441ab083788d18, type: 2}
-  m_Clips:
-  - m_OriginalClip: {fileID: 1827226128182048838, guid: 251853c728bb1734ab3e6367c4118bf8, type: 3}
-    m_OverrideClip: {fileID: 1827226128182048838, guid: 6ee5b6a73805dc947a6b0270b50f796c, type: 3}
-  - m_OriginalClip: {fileID: 1827226128182048838, guid: 460bec11b60af954abc8975bc97fac3a, type: 3}
-    m_OverrideClip: {fileID: 1827226128182048838, guid: 65a4afecee72b694b8b6bf9adf3f41a1, type: 3}
-  - m_OriginalClip: {fileID: 1827226128182048838, guid: 3677c8dc2dbaa5e449497a0bb4e03322, type: 3}
-    m_OverrideClip: {fileID: 1827226128182048838, guid: 82520a46d720e06488a4262478c578a4, type: 3}
+  m_Controller: {fileID: 9100000, guid: 105f33dffdda63143aafa385d69a1f78, type: 2}
+  m_Clips: []

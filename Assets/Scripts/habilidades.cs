@@ -26,13 +26,21 @@ public class Habilidad_jugador : MonoBehaviour
     public float factorCaidaLenta = 0.8f;
 
     // ─────────────────────────────────────────────────────────────────────
-    [Header("Misil")]
+    [Header("Misil - Configuración")]
     [Tooltip("Prefab del misil a instanciar")]
     public GameObject prefabMisil;
     [Tooltip("Fuerza de lanzamiento del misil")]
     public float fuerzaMisil = 20f;
     [Tooltip("Cooldown entre disparos de misil (seg)")]
     public float cooldownMisil = 0.5f;
+
+    [Header("Misil - Componentes del Arma")]
+    [Tooltip("El objeto RPG (modelo 3D) que está emparentado al hueso del personaje")]
+    public GameObject objetoRPG;
+    [Tooltip("Objeto vacío en la punta del cañón del RPG de donde saldrá el misil")]
+    public Transform puntoDisparoRPG;
+
+    public float retrasoSalidaMisil = 0.15f;
 
     // ─────────────────────────────────────────────────────────────────────
     [Header("Paralizante")]
@@ -50,6 +58,7 @@ public class Habilidad_jugador : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────
     private Rigidbody rb;
     private Movimiento_jugador movimiento;
+    private Animator anim; // Referencia interna para el control del Blend Tree y disparos
     
     // Variable para guardar el estado del input y usarlo en FixedUpdate
     private bool intentandoCaidaLenta = false;
@@ -62,6 +71,13 @@ public class Habilidad_jugador : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         movimiento = GetComponent<Movimiento_jugador>();
+        anim = GetComponentInChildren<Animator>();
+
+        // Forzamos a que el arma inicie apagada al cargar el mapa
+        if (objetoRPG != null)
+        {
+            objetoRPG.SetActive(false);
+        }
 
         if (movimiento == null)
         {
@@ -83,12 +99,14 @@ public class Habilidad_jugador : MonoBehaviour
             Debug.LogWarning("⚠️ ADVERTENCIA: La habilidad está configurada como 'Ninguna'. Asigna una en el Inspector.");
         }
 
-        if (habilidad == TipoHabilidad.Misil && prefabMisil == null)
+        if (habilidad == TipoHabilidad.Misil)
         {
-            Debug.LogError("❌ ERROR: Se seleccionó 'Misil' pero no hay prefab asignado. Arrastra el prefab al campo 'Prefab Misil'.");
+            if (prefabMisil == null)
+                Debug.LogError("❌ ERROR: Se seleccionó 'Misil' pero no hay prefab asignado. Arrastra el prefab al campo 'Prefab Misil'.");
+            
+            if (objetoRPG == null)
+                Debug.LogWarning("⚠️ ADVERTENCIA: No asignaste el 'Objeto RPG' en el Inspector. El modelo no se prenderá ni apagará.");
         }
-
-        // El paralizante puede usar una burbuja; el prefab del proyectil es opcional.
 
         Debug.Log("=================================");
     }
@@ -98,11 +116,16 @@ public class Habilidad_jugador : MonoBehaviour
         switch (habilidad)
         {
             case TipoHabilidad.CaidaLenta:
-                // Solo registramos el input en Update
                 intentandoCaidaLenta = Input.GetKey(teclaHabilidad);
                 break;
 
             case TipoHabilidad.Misil:
+                // Control automático de visibilidad: Oculta el RPG cuando termina el cooldown del disparo
+                if (objetoRPG != null && objetoRPG.activeSelf && Time.time >= tiempoUltimoDisparoMisil + cooldownMisil)
+                {
+                    objetoRPG.SetActive(false);
+                }
+
                 if (Input.GetKeyDown(teclaHabilidad) && PuedoDispararMisil())
                     DispararMisil();
                 break;
@@ -130,7 +153,6 @@ public class Habilidad_jugador : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Las fuerzas físicas continuas deben aplicarse aquí
         if (habilidad == TipoHabilidad.CaidaLenta)
         {
             ManejarCaidaLenta();
@@ -140,15 +162,13 @@ public class Habilidad_jugador : MonoBehaviour
     // ── Caída Lenta ───────────────────────────────────────────────────────
     void ManejarCaidaLenta()
     {
-        // Nota: rb.linearVelocity es exclusivo de Unity 6+. 
-        // Si usas una versión anterior y te da error, cámbialo a rb.velocity.y
         if (intentandoCaidaLenta && !movimiento.tocaPiso && rb.linearVelocity.y < 0f)
         {
             rb.AddForce(Vector3.up * Mathf.Abs(Physics.gravity.y) * factorCaidaLenta, ForceMode.Acceleration);
         }
     }
 
-    // ── Misil ─────────────────────────────────────────────────────────────
+    // ── Misil (Evolucionado y Sincronizado) ────────────────────────────────
     void DispararMisil()
     {
         if (prefabMisil == null)
@@ -159,16 +179,43 @@ public class Habilidad_jugador : MonoBehaviour
 
         tiempoUltimoDisparoMisil = Time.time;
 
-        Vector3 dir = transform.forward; // Dirección hacia donde está mirando el jugador
-        Vector3 origen = transform.position + dir * 1.5f;
+        // 1. Hace visible el lanzacohetes en la mano de forma inmediata
+        if (objetoRPG != null)
+        {
+            objetoRPG.SetActive(true);
+        }
 
-        GameObject misil = Instantiate(prefabMisil, origen, Quaternion.identity);
+        // 2. Dispara el trigger de retroceso hacia el Animator
+        if (anim != null)
+        {
+            anim.SetTrigger("Disparar");
+        }
+
+        StartCoroutine(RutinaSalidaMisil());
+    }
+    
+    System.Collections.IEnumerator RutinaSalidaMisil(){
+        yield return new WaitForSeconds(retrasoSalidaMisil);
+
+        Vector3 dir = transform.forward; 
+        
+        // Determinamos el punto de origen (Usa el punto de disparo si está configurado, si no, usa un offset frontal)
+        Vector3 origen = (puntoDisparoRPG != null) ? puntoDisparoRPG.position : (transform.position + dir * 1.5f);
+
+        // 4. Instancia el proyectil alineado con la orientación frontal del personaje
+        GameObject misil = Instantiate(prefabMisil, origen, transform.rotation);
+        
+        // 5. Impulsa el misil en línea recta con fuerza de impacto
         Rigidbody rbMisil = misil.GetComponent<Rigidbody>();
         if (rbMisil != null)
+        {
             rbMisil.AddForce(dir * fuerzaMisil, ForceMode.Impulse);
+        }
     }
+    
 
-    // ── Paralizante (VERSIÓN PROYECTIL - RESTAURADA) ──
+
+    // ── Paralizante (VERSIÓN PROYECTIL - RESTAURADA AL 100%) ──
     void DispararParalizante()
     {
         if (prefabParalizante == null)
@@ -181,20 +228,20 @@ public class Habilidad_jugador : MonoBehaviour
 
         // Obtener dirección de disparo (hacia donde mira el jugador)
         Vector3 direccionDisparo = transform.forward;
-    
+        
         // También puedes usar input de movimiento como antes:
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
-    
+        
         if (h != 0f || v != 0f)
         {
             direccionDisparo = (transform.right * h + transform.forward * v).normalized;
         }
-    
+        
         Vector3 puntoAparicion = transform.position + direccionDisparo * 1.5f;
-    
+        
         GameObject paralizante = Instantiate(prefabParalizante, puntoAparicion, Quaternion.identity);
-    
+        
         // Configurar el proyectil
         Paralizante paralizanteScript = paralizante.GetComponent<Paralizante>();
         if (paralizanteScript != null)
@@ -203,15 +250,14 @@ public class Habilidad_jugador : MonoBehaviour
             paralizanteScript.portador = GetComponent<Movimiento_jugador>();
             paralizanteScript.radioEfecto = radioParalizante; // Usar el radio para el área de efecto
         }
-    
+        
         // Agregar fuerza física
         Rigidbody rbParalizante = paralizante.GetComponent<Rigidbody>();
         if (rbParalizante != null)
         {
             rbParalizante.AddForce(direccionDisparo * fuerzaParalizante, ForceMode.Impulse);
         }
-    
+        
         Debug.Log($"Disparo paralizante lanzado en dirección: {direccionDisparo}");
     }
-
 }
