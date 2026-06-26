@@ -1575,7 +1575,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1826643271}
-  - component: {fileID: 1826643272}
   m_Layer: 0
   m_Name: personaje
   m_TagString: Untagged
@@ -1599,30 +1598,6 @@ Transform:
   - {fileID: 670528620}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1826643272
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826643270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4979bb39035076249adcd79644ad7011, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Movimiento_jugador
-  fuerzaMovimiento: 20
-  velocidadMaxima: 5
-  porcentajeCorriendo: 50
-  velocidadRotacion: 12
-  fuerzaSaltoMaxima: 15
-  velocidadCarga: 0.5
-  radioDeteccion: 0.3
-  capasPiso:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  offsetSuelo: 1
-  tocaPiso: 0
 --- !u!1 &1877072163
 GameObject:
   m_ObjectHideFlags: 0
