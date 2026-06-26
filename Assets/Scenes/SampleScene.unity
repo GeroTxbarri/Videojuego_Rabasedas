@@ -1784,7 +1784,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1826643271}
+    m_TransformParent: {fileID: 2129083063}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
       propertyPath: m_LocalScale.x
@@ -1816,15 +1816,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1841,6 +1841,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
       propertyPath: m_Name
       value: Idle
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
       propertyPath: m_Controller
@@ -1866,6 +1870,11 @@ PrefabInstance:
 --- !u!4 &1810383698 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
+  m_PrefabInstance: {fileID: 1810383697}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1810383699 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
   m_PrefabInstance: {fileID: 1810383697}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1821504885
@@ -1989,7 +1998,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1826643271}
-  - component: {fileID: 1826643272}
   m_Layer: 0
   m_Name: personaje
   m_TagString: Untagged
@@ -2010,34 +2018,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1810383698}
   - {fileID: 670528620}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1826643272
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826643270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4979bb39035076249adcd79644ad7011, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Movimiento_jugador
-  fuerzaMovimiento: 20
-  velocidadMaxima: 5
-  porcentajeCorriendo: 50
-  velocidadRotacion: 12
-  fuerzaSaltoMaxima: 15
-  velocidadCarga: 0.5
-  radioDeteccion: 0.3
-  capasPiso:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  offsetSuelo: 1
-  tocaPiso: 0
 --- !u!1 &1877072163
 GameObject:
   m_ObjectHideFlags: 0
@@ -2306,6 +2289,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1631248214}
+  - {fileID: 1810383698}
   - {fileID: 149874045}
   - {fileID: 401749246}
   - {fileID: 554688422}
@@ -2326,7 +2310,7 @@ MonoBehaviour:
   habilidad: 3
   teclaHabilidad: 101
   factorCaidaLenta: 0.8
-  prefabMisil: {fileID: 7643110280385555853, guid: 09fd7c06021c9b94cbf6ecf1bdcfd08c, type: 3}
+  prefabMisil: {fileID: 7846197280171348908, guid: 282447efbf86f574bb67428296c163c4, type: 3}
   fuerzaMisil: 20
   cooldownMisil: 0.5
   prefabParalizante: {fileID: 919132149155446097, guid: c49442f6a098c8646ab509f018e53351, type: 3}
@@ -2384,7 +2368,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CargarPersonaje
   modeloMilitar: {fileID: 363429826}
-  modeloPez: {fileID: 919132149155446097, guid: d4c96c7e52fa39046bbf1ec3bef59ab8, type: 3}
+  modeloPez: {fileID: 1810383699}
   modeloRobot: {fileID: 401749245}
   scriptHabilidades: {fileID: 2129083065}
 --- !u!1001 &1783405343652220503
