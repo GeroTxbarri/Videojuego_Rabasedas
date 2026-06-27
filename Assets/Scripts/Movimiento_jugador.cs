@@ -85,6 +85,7 @@ public class Movimiento_jugador : MonoBehaviour
             {
                 anim.SetFloat("XSpeed", 0f);
                 anim.SetFloat("YSpeed", 0f);
+                anim.SetBool("Volar", false);
             }
             return; 
         }
@@ -102,6 +103,8 @@ public class Movimiento_jugador : MonoBehaviour
         {
             anim.SetFloat("XSpeed", inputH * multiplicadorAnimacion);
             anim.SetFloat("YSpeed", inputV * multiplicadorAnimacion);
+            // Activa la animación de volar cuando el jugador está en el aire
+            anim.SetBool("Volar", !tocaPiso);
         }
         // 3b. ROTACION DEL PERSONAJE hacia la dirección de movimiento
         RotarHaciaMovimiento();
